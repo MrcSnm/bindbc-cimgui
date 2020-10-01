@@ -15,7 +15,7 @@
 	"libs": [
 		"../lib/bindbc-cimgui"
 	],
-	"license": "BSL-1.0",
+	"license": "proprietary",
 	"name": "bindbc-cimgui_sample",
 	"sourcePaths": [
 		"source"

@@ -15,7 +15,7 @@
 	"importPaths": [
 		"source"
 	],
-	"license": "BSL-1.0",
+	"license": "proprietary",
 	"name": "bindbc-cimgui",
 	"sourcePaths": [
 		"source"
