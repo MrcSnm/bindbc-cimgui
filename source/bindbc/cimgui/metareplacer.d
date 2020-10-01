@@ -1,4 +1,4 @@
-module cimgui_.metareplacer;
+module bindbc.cimgui.metareplacer;
 
 
 

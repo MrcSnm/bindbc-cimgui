@@ -1,4 +1,4 @@
-module cimgui.types;
+module bindbc.cimgui.types;
 import core.stdc.config;
 import core.stdc.stdarg: va_list;
 import core.stdc.stdio : _iobuf;

@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/bindbc-cimgui_sample
+bindbc-cimgui_sample.so
+bindbc-cimgui_sample.dylib
+bindbc-cimgui_sample.dll
+bindbc-cimgui_sample.a
+bindbc-cimgui_sample.lib
+bindbc-cimgui_sample-test-*
+*.exe
+*.o
+*.obj
+*.lst

@@ -1,0 +1,31 @@
+{
+	"authors": [
+		"Hipreme"
+	],
+	"copyright": "Copyright © 2020, Hipreme",
+	"dependencies": {
+		"bindbc-opengl": "~>0.13.0",
+		"bindbc-sdl": "~>0.19.1"
+	},
+	"description": "A minimal bindbc-cimgui example using sdl and opengl",
+	"importPaths": [
+		"source",
+		"../source"
+	],
+	"libs": [
+		"../lib/bindbc-cimgui"
+	],
+	"license": "proprietary",
+	"name": "bindbc-cimgui_sample",
+	"sourcePaths": [
+		"source"
+	],
+	"targetPath": "bin",
+	"versions": [
+		"SDL_208",
+		"BindSDL_TTF",
+		"BindSDL_Image",
+		"GL_33",
+		"GL_ARB"
+	]
+}

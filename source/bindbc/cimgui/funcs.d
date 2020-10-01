@@ -1,5 +1,5 @@
-module cimgui.funcs;
-import cimgui.types;
+module bindbc.cimgui.funcs;
+import bindbc.cimgui.types;
 import core.stdc.stdarg:va_list;
 
 extern(C) @nogc nothrow

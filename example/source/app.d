@@ -1,9 +1,9 @@
 import std.stdio;
+import bindbc.cimgui;
 import bindbc.sdl;
 import bindbc.opengl;
-import cimgui;
-import imgui.imgui_impl_opengl3;
-import imgui.imgui_impl_sdl;
+import imgui_backend.impl_opengl3;
+import imgui_backend.impl_sdl;
 
 static SDL_Window* gWindow = null;
 

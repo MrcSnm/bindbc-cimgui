@@ -1,4 +1,9 @@
-module imgui.imgui_impl_sdl;
+module imgui_backend.impl_sdl;
+// // SDL
+import bindbc.sdl;
+import bindbc.cimgui;
+import imgui_backend.impl_opengl3 : IM_ASSERT, IM_ARRAYSIZE;
+import core.stdc.string : memset, strncpy, strncmp;
 
 // // dear imgui: Platform Binding for SDL2
 // // This needs to be used along with a Renderer (e.g. DirectX11, OpenGL3, Vulkan..)
@@ -46,12 +51,6 @@ module imgui.imgui_impl_sdl;
 // //  2017-08-25: Inputs: MousePos set to -FLT_MAX,-FLT_MAX when mouse is unavailable/missing (instead of -1,-1).
 // //  2016-10-15: Misc: Added a void* user_data parameter to Clipboard function handlers.
 
-
-// // SDL
-import cimgui;
-import bindbc.sdl;
-import imgui.imgui_impl_opengl3 : IM_ASSERT, IM_ARRAYSIZE;
-import core.stdc.string : memset, strncpy, strncmp;
 enum SDL_HAS_CAPTURE_AND_GLOBAL_MOUSE =     sdlSupport >= SDLSupport.sdl204;
 enum SDL_HAS_VULKAN                   =     sdlSupport >= SDLSupport.sdl206;
 

@@ -1,8 +1,8 @@
-module cimgui.cimguiload;
+module bindbc.cimgui.cimguiload;
 
 import bindbc.loader;
-import cimgui.types;
-import cimgui.funcs;
+import bindbc.cimgui.types;
+import bindbc.cimgui.funcs;
 
 private
 {

@@ -1,6 +1,13 @@
-module imgui.imgui_impl_opengl3;
+module imgui_backend.impl_opengl3;
+import bindbc.cimgui;
+
 import std.stdio : writeln, writefln;
 import std.conv:to;
+import core.stdc.stdio;
+
+import core.stdc.string;
+import core.stdc.stdint : intptr_t;
+
 
 // dear imgui: Renderer for modern OpenGL with shaders / programmatic pipeline
 // - Desktop GL: 2.x 3.x 4.x
@@ -80,11 +87,6 @@ enum GL_VERSION_3_3 = false;
 enum IMGUI_IMPL_OPENGL_ES3 = false;
 enum IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER = false;
 enum IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET = false;
-
-import cimgui;
-import core.stdc.stdio;
-import core.stdc.string;
-import core.stdc.stdint : intptr_t;    // intptr_t
 
 enum IM_OFFSETOF(alias member) = member.offsetof;
 int IM_ARRAYSIZE(T)(ref T var)
