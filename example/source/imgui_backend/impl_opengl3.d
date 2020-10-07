@@ -94,12 +94,6 @@ enum IMGUI_IMPL_OPENGL_ES3 = false;
 enum IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER = false;
 enum IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET = false;
 
-enum IM_OFFSETOF(alias member) = member.offsetof;
-int IM_ARRAYSIZE(T)(ref T var)
-{
-    return cast(int)((var.sizeof)/((*(var).ptr).sizeof)); //Same as var.sizeof/(*var).sizeof
-}
-void IM_ASSERT()(auto ref bool exp,  string msg = ""){assert(exp, msg);}
 
 // GL includes
 static if(IMGUI_IMPL_OPENGL_ES2)
@@ -356,7 +350,7 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
 
         for (int cmd_i = 0; cmd_i < cmd_list.CmdBuffer.Size; cmd_i++)
         {
-            const (ImDrawCmd)* pcmd = &(cmd_list.CmdBuffer[cmd_i]);
+            const (ImDrawCmd)* pcmd = &(cmd_list.CmdBuffer.Data[cmd_i]);
             if (pcmd.UserCallback != null)
             {
                 // User callback, registered via ImDrawList::AddCallback()

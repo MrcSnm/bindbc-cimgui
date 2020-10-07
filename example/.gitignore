@@ -13,3 +13,4 @@ bindbc-cimgui_sample-test-*
 *.o
 *.obj
 *.lst
+imgui.ini

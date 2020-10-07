@@ -45,7 +45,7 @@ int main()
     loadSDLImage();
     loadSDLTTF();
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    if(!loadCImGUI())
+    if(!loadcimgui())
         writeln("Could not read cimgui");
     gWindow = createSDL_GL_Window();
 
@@ -55,14 +55,23 @@ int main()
     io.DisplaySize.x = 1280;
     io.DisplaySize.y = 720;
     io.DeltaTime = 1f / 60f;
+    //For the non docking
+    static if(CIMGUI_VIEWPORT_BRANCH)
+    {
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        ImGuiStyle* style = igGetStyle();
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
 
     bool show_demo_window = true;
     bool show_another_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     bool quit = false;
+    ImGui_ImplSDL2_InitForOpenGL(gWindow, SDL_GL_GetCurrentContext());
     ImGui_ImplOpenGL3_Init("");
-    ImGui_ImplSDL2_Init(gWindow);
     
     igStyleColorsDark(null);
 
@@ -72,18 +81,26 @@ int main()
         SDL_Event e;
 		while(SDL_PollEvent(&e)) 
 		{
+            ImGui_ImplSDL2_ProcessEvent(&e);
 			switch(e.type)
 			{
 				case SDL_QUIT:
 					quit = true;
 					break;
+                static if(CIMGUI_VIEWPORT_BRANCH)
+                {
+                    case SDL_WINDOWEVENT:
+                    if (e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(gWindow))
+                        quit = true;
+                    break;
+                }
 				default:break;
-			}  
+			}
 		}
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
-        igNewFrame();
         ImGui_ImplSDL2_NewFrame(gWindow);
+        igNewFrame();
         // 3. Show another simple window.
         if (show_another_window)
         {
@@ -93,6 +110,8 @@ int main()
                 show_another_window = false;
             igEnd();
         }
+        static bool showDemo = true;
+        igShowDemoWindow(&showDemo);
 
         // Rendering
 		glViewport(0, 0, cast(int)io.DisplaySize.x, cast(int)io.DisplaySize.y);
@@ -103,6 +122,18 @@ int main()
         igRender();
         ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
 
+        static if(CIMGUI_VIEWPORT_BRANCH)
+        {
+            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+                SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+                igUpdatePlatformWindows();
+                igRenderPlatformWindowsDefault(null,null);
+                SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+            }
+        }
+
         SDL_GL_SwapWindow(gWindow);
 		
 		// SDL_UpdateWindowSurface(gWindow);
@@ -112,7 +143,7 @@ int main()
     //////////END IMGUI
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
-    // ImGui_ImplSDL2_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
     igDestroyContext(igGetCurrentContext());
 
     SDL_GL_DeleteContext(SDL_GL_GetCurrentContext());
