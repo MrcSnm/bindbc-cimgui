@@ -1,9 +1,3 @@
-
-//          Copyright Marcelo S. N. Mancini(Hipreme) 2020.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
 module bindbc.cimgui.cimguiload;
 import bindbc.loader;
 import bindbc.cimgui.types;
@@ -322,7 +316,7 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&igBeginPopupModal, "igBeginPopupModal");
 	lib.bindSymbol(cast(void**)&igEndPopup, "igEndPopup");
 	lib.bindSymbol(cast(void**)&igOpenPopup, "igOpenPopup");
-	lib.bindSymbol(cast(void**)&igOpenPopupContextItem, "igOpenPopupContextItem");
+	lib.bindSymbol(cast(void**)&igOpenPopupOnItemClick, "igOpenPopupOnItemClick");
 	lib.bindSymbol(cast(void**)&igCloseCurrentPopup, "igCloseCurrentPopup");
 	lib.bindSymbol(cast(void**)&igBeginPopupContextItem, "igBeginPopupContextItem");
 	lib.bindSymbol(cast(void**)&igBeginPopupContextWindow, "igBeginPopupContextWindow");
@@ -340,6 +334,7 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&igEndTabBar, "igEndTabBar");
 	lib.bindSymbol(cast(void**)&igBeginTabItem, "igBeginTabItem");
 	lib.bindSymbol(cast(void**)&igEndTabItem, "igEndTabItem");
+	lib.bindSymbol(cast(void**)&igTabItemButton, "igTabItemButton");
 	lib.bindSymbol(cast(void**)&igSetTabItemClosed, "igSetTabItemClosed");
 	lib.bindSymbol(cast(void**)&igDockSpace, "igDockSpace");
 	lib.bindSymbol(cast(void**)&igDockSpaceOverViewport, "igDockSpaceOverViewport");
@@ -451,6 +446,8 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&ImGuiInputTextCallbackData_destroy, "ImGuiInputTextCallbackData_destroy");
 	lib.bindSymbol(cast(void**)&ImGuiInputTextCallbackData_DeleteChars, "ImGuiInputTextCallbackData_DeleteChars");
 	lib.bindSymbol(cast(void**)&ImGuiInputTextCallbackData_InsertChars, "ImGuiInputTextCallbackData_InsertChars");
+	lib.bindSymbol(cast(void**)&ImGuiInputTextCallbackData_SelectAll, "ImGuiInputTextCallbackData_SelectAll");
+	lib.bindSymbol(cast(void**)&ImGuiInputTextCallbackData_ClearSelection, "ImGuiInputTextCallbackData_ClearSelection");
 	lib.bindSymbol(cast(void**)&ImGuiInputTextCallbackData_HasSelection, "ImGuiInputTextCallbackData_HasSelection");
 	lib.bindSymbol(cast(void**)&ImGuiWindowClass_ImGuiWindowClass, "ImGuiWindowClass_ImGuiWindowClass");
 	lib.bindSymbol(cast(void**)&ImGuiWindowClass_destroy, "ImGuiWindowClass_destroy");
@@ -506,9 +503,9 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&ImGuiStorage_BuildSortByKey, "ImGuiStorage_BuildSortByKey");
 	lib.bindSymbol(cast(void**)&ImGuiListClipper_ImGuiListClipper, "ImGuiListClipper_ImGuiListClipper");
 	lib.bindSymbol(cast(void**)&ImGuiListClipper_destroy, "ImGuiListClipper_destroy");
-	lib.bindSymbol(cast(void**)&ImGuiListClipper_Step, "ImGuiListClipper_Step");
 	lib.bindSymbol(cast(void**)&ImGuiListClipper_Begin, "ImGuiListClipper_Begin");
 	lib.bindSymbol(cast(void**)&ImGuiListClipper_End, "ImGuiListClipper_End");
+	lib.bindSymbol(cast(void**)&ImGuiListClipper_Step, "ImGuiListClipper_Step");
 	lib.bindSymbol(cast(void**)&ImColor_ImColorNil, "ImColor_ImColorNil");
 	lib.bindSymbol(cast(void**)&ImColor_destroy, "ImColor_destroy");
 	lib.bindSymbol(cast(void**)&ImColor_ImColorInt, "ImColor_ImColorInt");
@@ -933,6 +930,7 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&igKeepAliveID, "igKeepAliveID");
 	lib.bindSymbol(cast(void**)&igMarkItemEdited, "igMarkItemEdited");
 	lib.bindSymbol(cast(void**)&igPushOverrideID, "igPushOverrideID");
+	lib.bindSymbol(cast(void**)&igGetIDWithSeed, "igGetIDWithSeed");
 	lib.bindSymbol(cast(void**)&igItemSizeVec2, "igItemSizeVec2");
 	lib.bindSymbol(cast(void**)&igItemSizeRect, "igItemSizeRect");
 	lib.bindSymbol(cast(void**)&igItemAdd, "igItemAdd");
@@ -1035,7 +1033,8 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&igTabBarAddTab, "igTabBarAddTab");
 	lib.bindSymbol(cast(void**)&igTabBarRemoveTab, "igTabBarRemoveTab");
 	lib.bindSymbol(cast(void**)&igTabBarCloseTab, "igTabBarCloseTab");
-	lib.bindSymbol(cast(void**)&igTabBarQueueChangeTabOrder, "igTabBarQueueChangeTabOrder");
+	lib.bindSymbol(cast(void**)&igTabBarQueueReorder, "igTabBarQueueReorder");
+	lib.bindSymbol(cast(void**)&igTabBarProcessReorder, "igTabBarProcessReorder");
 	lib.bindSymbol(cast(void**)&igTabItemEx, "igTabItemEx");
 	lib.bindSymbol(cast(void**)&igTabItemCalcSize, "igTabItemCalcSize");
 	lib.bindSymbol(cast(void**)&igTabItemBackground, "igTabItemBackground");
@@ -1082,6 +1081,7 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&igDataTypeFormatString, "igDataTypeFormatString");
 	lib.bindSymbol(cast(void**)&igDataTypeApplyOp, "igDataTypeApplyOp");
 	lib.bindSymbol(cast(void**)&igDataTypeApplyOpFromText, "igDataTypeApplyOpFromText");
+	lib.bindSymbol(cast(void**)&igDataTypeCompare, "igDataTypeCompare");
 	lib.bindSymbol(cast(void**)&igDataTypeClamp, "igDataTypeClamp");
 	lib.bindSymbol(cast(void**)&igInputTextEx, "igInputTextEx");
 	lib.bindSymbol(cast(void**)&igTempInputText, "igTempInputText");
@@ -1113,4 +1113,4 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&ImVector_ImWchar_destroy, "ImVector_ImWchar_destroy");
 	lib.bindSymbol(cast(void**)&ImVector_ImWchar_Init, "ImVector_ImWchar_Init");
 	lib.bindSymbol(cast(void**)&ImVector_ImWchar_UnInit, "ImVector_ImWchar_UnInit");
-}
+	}

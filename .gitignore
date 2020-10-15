@@ -14,3 +14,7 @@ d_cimgui-test-*
 *.obj
 *.lst
 imgui.ini
+lib/**
+*.ttf
+*.ini
+.history

@@ -18,11 +18,21 @@ int IM_ARRAYSIZE(T)(ref T var)
 {
     return cast(int)((var.sizeof)/((*(var).ptr).sizeof)); //Same as var.sizeof/(*var).sizeof
 }
-void IM_ASSERT()(auto ref bool exp,  string msg = ""){assert(exp, msg);}
-void IM_DELETE(T)(ref T* p){if(p)destroy(p); igMemFree(p);}
-T* IM_NEW(T)()
+void IM_ASSERT()(auto ref bool exp,  string msg = "")
 {
-    void* ptr = igMemAlloc(T.sizeof);
+    assert(exp, msg);
+}
+void IM_DELETE(T)(ref T* p){if(p)destroy(p); igMemFree(p);}
+
+@nogc T* IM_NEW(T)()
+{
+    import core.lifetime : emplace, forward;
+    import core.stdc.string:memcpy;
+    T* ptr = cast(T*)igMemAlloc(T.sizeof);
+    //emplace(ptr);
+    //*ptr = T();
+    //T t;
+    //memcpy(ptr, &t, T.sizeof);
     return cast(T*)ptr;
 }
 

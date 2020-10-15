@@ -1,9 +1,4 @@
 
-//          Copyright Marcelo S. N. Mancini(Hipreme) 2020.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
 module bindbc.cimgui.funcs;
 import bindbc.cimgui.types;
 import core.stdc.stdarg:va_list;
@@ -265,7 +260,7 @@ extern(C) @nogc nothrow
 	alias da_igBeginPopupModal = bool function (const (char)* name,bool* p_open,ImGuiWindowFlags flags);
 	alias da_igEndPopup = void function ();
 	alias da_igOpenPopup = void function (const (char)* str_id,ImGuiPopupFlags popup_flags);
-	alias da_igOpenPopupContextItem = bool function (const (char)* str_id,ImGuiPopupFlags popup_flags);
+	alias da_igOpenPopupOnItemClick = void function (const (char)* str_id,ImGuiPopupFlags popup_flags);
 	alias da_igCloseCurrentPopup = void function ();
 	alias da_igBeginPopupContextItem = bool function (const (char)* str_id,ImGuiPopupFlags popup_flags);
 	alias da_igBeginPopupContextWindow = bool function (const (char)* str_id,ImGuiPopupFlags popup_flags);
@@ -283,6 +278,7 @@ extern(C) @nogc nothrow
 	alias da_igEndTabBar = void function ();
 	alias da_igBeginTabItem = bool function (const (char)* label,bool* p_open,ImGuiTabItemFlags flags);
 	alias da_igEndTabItem = void function ();
+	alias da_igTabItemButton = bool function (const (char)* label,ImGuiTabItemFlags flags);
 	alias da_igSetTabItemClosed = void function (const (char)* tab_or_docked_window_label);
 	alias da_igDockSpace = void function (ImGuiID id,const ImVec2 size,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
 	alias da_igDockSpaceOverViewport = ImGuiID function (ImGuiViewport* viewport,ImGuiDockNodeFlags flags,const ImGuiWindowClass* window_class);
@@ -394,6 +390,8 @@ extern(C) @nogc nothrow
 	alias da_ImGuiInputTextCallbackData_destroy = void function (ImGuiInputTextCallbackData* self);
 	alias da_ImGuiInputTextCallbackData_DeleteChars = void function (ImGuiInputTextCallbackData* self,int pos,int bytes_count);
 	alias da_ImGuiInputTextCallbackData_InsertChars = void function (ImGuiInputTextCallbackData* self,int pos,const (char)* text,const (char)* text_end);
+	alias da_ImGuiInputTextCallbackData_SelectAll = void function (ImGuiInputTextCallbackData* self);
+	alias da_ImGuiInputTextCallbackData_ClearSelection = void function (ImGuiInputTextCallbackData* self);
 	alias da_ImGuiInputTextCallbackData_HasSelection = bool function (ImGuiInputTextCallbackData* self);
 	alias da_ImGuiWindowClass_ImGuiWindowClass = ImGuiWindowClass* function ();
 	alias da_ImGuiWindowClass_destroy = void function (ImGuiWindowClass* self);
@@ -447,11 +445,11 @@ extern(C) @nogc nothrow
 	alias da_ImGuiStorage_GetVoidPtrRef = void** function (ImGuiStorage* self,ImGuiID key,void* default_val);
 	alias da_ImGuiStorage_SetAllInt = void function (ImGuiStorage* self,int val);
 	alias da_ImGuiStorage_BuildSortByKey = void function (ImGuiStorage* self);
-	alias da_ImGuiListClipper_ImGuiListClipper = ImGuiListClipper* function (int items_count,float items_height);
+	alias da_ImGuiListClipper_ImGuiListClipper = ImGuiListClipper* function ();
 	alias da_ImGuiListClipper_destroy = void function (ImGuiListClipper* self);
-	alias da_ImGuiListClipper_Step = bool function (ImGuiListClipper* self);
 	alias da_ImGuiListClipper_Begin = void function (ImGuiListClipper* self,int items_count,float items_height);
 	alias da_ImGuiListClipper_End = void function (ImGuiListClipper* self);
+	alias da_ImGuiListClipper_Step = bool function (ImGuiListClipper* self);
 	alias da_ImColor_ImColorNil = ImColor* function ();
 	alias da_ImColor_destroy = void function (ImColor* self);
 	alias da_ImColor_ImColorInt = ImColor* function (int r,int g,int b,int a);
@@ -590,7 +588,7 @@ extern(C) @nogc nothrow
 	alias da_ImFont_BuildLookupTable = void function (ImFont* self);
 	alias da_ImFont_ClearOutputData = void function (ImFont* self);
 	alias da_ImFont_GrowIndex = void function (ImFont* self,int new_size);
-	alias da_ImFont_AddGlyph = void function (ImFont* self,ImFontConfig* src_cfg,ImWchar c,float x0,float y0,float x1,float y1,float u0,float v0,float u1,float v1,float advance_x);
+	alias da_ImFont_AddGlyph = void function (ImFont* self,const ImFontConfig* src_cfg,ImWchar c,float x0,float y0,float x1,float y1,float u0,float v0,float u1,float v1,float advance_x);
 	alias da_ImFont_AddRemapChar = void function (ImFont* self,ImWchar dst,ImWchar src,bool overwrite_dst);
 	alias da_ImFont_SetGlyphVisible = void function (ImFont* self,ImWchar c,bool visible);
 	alias da_ImFont_SetFallbackChar = void function (ImFont* self,ImWchar c);
@@ -859,8 +857,8 @@ extern(C) @nogc nothrow
 	alias da_igFindOrCreateWindowSettings = ImGuiWindowSettings* function (const (char)* name);
 	alias da_igFindSettingsHandler = ImGuiSettingsHandler* function (const (char)* type_name);
 	alias da_igSetNextWindowScroll = void function (const ImVec2 scroll);
-	alias da_igSetScrollXWindowPtr = void function (ImGuiWindow* window,float new_scroll_x);
-	alias da_igSetScrollYWindowPtr = void function (ImGuiWindow* window,float new_scroll_y);
+	alias da_igSetScrollXWindowPtr = void function (ImGuiWindow* window,float scroll_x);
+	alias da_igSetScrollYWindowPtr = void function (ImGuiWindow* window,float scroll_y);
 	alias da_igSetScrollFromPosXWindowPtr = void function (ImGuiWindow* window,float local_x,float center_x_ratio);
 	alias da_igSetScrollFromPosYWindowPtr = void function (ImGuiWindow* window,float local_y,float center_y_ratio);
 	alias da_igScrollToBringRectIntoView = void function (ImVec2 *pOut,ImGuiWindow* window,const ImRect item_rect);
@@ -876,6 +874,7 @@ extern(C) @nogc nothrow
 	alias da_igKeepAliveID = void function (ImGuiID id);
 	alias da_igMarkItemEdited = void function (ImGuiID id);
 	alias da_igPushOverrideID = void function (ImGuiID id);
+	alias da_igGetIDWithSeed = ImGuiID function (const (char)* str_id_begin,const (char)* str_id_end,ImGuiID seed);
 	alias da_igItemSizeVec2 = void function (const ImVec2 size,float text_baseline_y);
 	alias da_igItemSizeRect = void function (const ImRect bb,float text_baseline_y);
 	alias da_igItemAdd = bool function (const ImRect bb,ImGuiID id,const ImRect* nav_bb);
@@ -978,7 +977,8 @@ extern(C) @nogc nothrow
 	alias da_igTabBarAddTab = void function (ImGuiTabBar* tab_bar,ImGuiTabItemFlags tab_flags,ImGuiWindow* window);
 	alias da_igTabBarRemoveTab = void function (ImGuiTabBar* tab_bar,ImGuiID tab_id);
 	alias da_igTabBarCloseTab = void function (ImGuiTabBar* tab_bar,ImGuiTabItem* tab);
-	alias da_igTabBarQueueChangeTabOrder = void function (ImGuiTabBar* tab_bar,const ImGuiTabItem* tab,int dir);
+	alias da_igTabBarQueueReorder = void function (ImGuiTabBar* tab_bar,const ImGuiTabItem* tab,int dir);
+	alias da_igTabBarProcessReorder = bool function (ImGuiTabBar* tab_bar);
 	alias da_igTabItemEx = bool function (ImGuiTabBar* tab_bar,const (char)* label,bool* p_open,ImGuiTabItemFlags flags,ImGuiWindow* docked_window);
 	alias da_igTabItemCalcSize = void function (ImVec2 *pOut,const (char)* label,bool has_close_button);
 	alias da_igTabItemBackground = void function (ImDrawList* draw_list,const ImRect bb,ImGuiTabItemFlags flags,ImU32 col);
@@ -1023,8 +1023,9 @@ extern(C) @nogc nothrow
 	alias da_igTreePushOverrideID = void function (ImGuiID id);
 	alias da_igDataTypeGetInfo = const ImGuiDataTypeInfo* function (ImGuiDataType data_type);
 	alias da_igDataTypeFormatString = int function (char* buf,int buf_size,ImGuiDataType data_type,const void* p_data,const (char)* format);
-	alias da_igDataTypeApplyOp = void function (ImGuiDataType data_type,int op,void* output,void* arg_1,const void* arg_2);
+	alias da_igDataTypeApplyOp = void function (ImGuiDataType data_type,int op,void* output,const void* arg_1,const void* arg_2);
 	alias da_igDataTypeApplyOpFromText = bool function (const (char)* buf,const (char)* initial_value_buf,ImGuiDataType data_type,void* p_data,const (char)* format);
+	alias da_igDataTypeCompare = int function (ImGuiDataType data_type,const void* arg_1,const void* arg_2);
 	alias da_igDataTypeClamp = bool function (ImGuiDataType data_type,void* p_data,const void* p_min,const void* p_max);
 	alias da_igInputTextEx = bool function (const (char)* label,const (char)* hint,char* buf,int buf_size,const ImVec2 size_arg,ImGuiInputTextFlags flags,ImGuiInputTextCallback callback,void* user_data);
 	alias da_igTempInputText = bool function (const ImRect bb,ImGuiID id,const (char)* label,char* buf,int buf_size,ImGuiInputTextFlags flags);
@@ -1314,7 +1315,7 @@ __gshared
 	da_igBeginPopupModal igBeginPopupModal;
 	da_igEndPopup igEndPopup;
 	da_igOpenPopup igOpenPopup;
-	da_igOpenPopupContextItem igOpenPopupContextItem;
+	da_igOpenPopupOnItemClick igOpenPopupOnItemClick;
 	da_igCloseCurrentPopup igCloseCurrentPopup;
 	da_igBeginPopupContextItem igBeginPopupContextItem;
 	da_igBeginPopupContextWindow igBeginPopupContextWindow;
@@ -1332,6 +1333,7 @@ __gshared
 	da_igEndTabBar igEndTabBar;
 	da_igBeginTabItem igBeginTabItem;
 	da_igEndTabItem igEndTabItem;
+	da_igTabItemButton igTabItemButton;
 	da_igSetTabItemClosed igSetTabItemClosed;
 	da_igDockSpace igDockSpace;
 	da_igDockSpaceOverViewport igDockSpaceOverViewport;
@@ -1443,6 +1445,8 @@ __gshared
 	da_ImGuiInputTextCallbackData_destroy ImGuiInputTextCallbackData_destroy;
 	da_ImGuiInputTextCallbackData_DeleteChars ImGuiInputTextCallbackData_DeleteChars;
 	da_ImGuiInputTextCallbackData_InsertChars ImGuiInputTextCallbackData_InsertChars;
+	da_ImGuiInputTextCallbackData_SelectAll ImGuiInputTextCallbackData_SelectAll;
+	da_ImGuiInputTextCallbackData_ClearSelection ImGuiInputTextCallbackData_ClearSelection;
 	da_ImGuiInputTextCallbackData_HasSelection ImGuiInputTextCallbackData_HasSelection;
 	da_ImGuiWindowClass_ImGuiWindowClass ImGuiWindowClass_ImGuiWindowClass;
 	da_ImGuiWindowClass_destroy ImGuiWindowClass_destroy;
@@ -1498,9 +1502,9 @@ __gshared
 	da_ImGuiStorage_BuildSortByKey ImGuiStorage_BuildSortByKey;
 	da_ImGuiListClipper_ImGuiListClipper ImGuiListClipper_ImGuiListClipper;
 	da_ImGuiListClipper_destroy ImGuiListClipper_destroy;
-	da_ImGuiListClipper_Step ImGuiListClipper_Step;
 	da_ImGuiListClipper_Begin ImGuiListClipper_Begin;
 	da_ImGuiListClipper_End ImGuiListClipper_End;
+	da_ImGuiListClipper_Step ImGuiListClipper_Step;
 	da_ImColor_ImColorNil ImColor_ImColorNil;
 	da_ImColor_destroy ImColor_destroy;
 	da_ImColor_ImColorInt ImColor_ImColorInt;
@@ -1925,6 +1929,7 @@ __gshared
 	da_igKeepAliveID igKeepAliveID;
 	da_igMarkItemEdited igMarkItemEdited;
 	da_igPushOverrideID igPushOverrideID;
+	da_igGetIDWithSeed igGetIDWithSeed;
 	da_igItemSizeVec2 igItemSizeVec2;
 	da_igItemSizeRect igItemSizeRect;
 	da_igItemAdd igItemAdd;
@@ -2027,7 +2032,8 @@ __gshared
 	da_igTabBarAddTab igTabBarAddTab;
 	da_igTabBarRemoveTab igTabBarRemoveTab;
 	da_igTabBarCloseTab igTabBarCloseTab;
-	da_igTabBarQueueChangeTabOrder igTabBarQueueChangeTabOrder;
+	da_igTabBarQueueReorder igTabBarQueueReorder;
+	da_igTabBarProcessReorder igTabBarProcessReorder;
 	da_igTabItemEx igTabItemEx;
 	da_igTabItemCalcSize igTabItemCalcSize;
 	da_igTabItemBackground igTabItemBackground;
@@ -2074,6 +2080,7 @@ __gshared
 	da_igDataTypeFormatString igDataTypeFormatString;
 	da_igDataTypeApplyOp igDataTypeApplyOp;
 	da_igDataTypeApplyOpFromText igDataTypeApplyOpFromText;
+	da_igDataTypeCompare igDataTypeCompare;
 	da_igDataTypeClamp igDataTypeClamp;
 	da_igInputTextEx igInputTextEx;
 	da_igTempInputText igTempInputText;
