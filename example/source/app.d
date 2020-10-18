@@ -51,7 +51,7 @@ void loadLibs()
         additionalLoadAll = (SharedLib lib)
         {
             //bindGLImgui(lib);
-            // bindSDLImgui(lib);
+            bindSDLImgui(lib);
         };
     }
     if(!loadcimgui(additionalLoadAll))

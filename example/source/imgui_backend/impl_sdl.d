@@ -7,7 +7,7 @@
 module imgui_backend.impl_sdl;
 // // SDL
 
-enum CIMGUI_USER_DEFINED_IMPLEMENTATION = true;
+enum CIMGUI_USER_DEFINED_IMPLEMENTATION = false;
 import bindbc.sdl;
 
 static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
