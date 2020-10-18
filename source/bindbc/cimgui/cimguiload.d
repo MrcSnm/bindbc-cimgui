@@ -5,9 +5,14 @@ import bindbc.cimgui.funcs;
 private
 {
 	SharedLib lib;
+	void function(SharedLib lib) additionalLoad;
 }
-bool loadcimgui()
+/**
+*	Extra load is used in case of wanting to additionally load any implementation from a dll
+*/
+bool loadcimgui(void function(SharedLib lib) extraLoad = null)
 {
+	additionalLoad = extraLoad;
     version(Windows){
         const (char)[][1] libNames = ["cimgui.dll"];
     }
@@ -1113,4 +1118,6 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&ImVector_ImWchar_destroy, "ImVector_ImWchar_destroy");
 	lib.bindSymbol(cast(void**)&ImVector_ImWchar_Init, "ImVector_ImWchar_Init");
 	lib.bindSymbol(cast(void**)&ImVector_ImWchar_UnInit, "ImVector_ImWchar_UnInit");
-	}
+	if(additionalLoad != null)
+		additionalLoad(lib);
+}

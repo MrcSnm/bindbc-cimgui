@@ -27,18 +27,14 @@ void IM_DELETE(T)(ref T* p){if(p)destroy(p); igMemFree(p);}
 @nogc T* IM_NEW(T)()
 {
     import core.lifetime : emplace, forward;
-    import core.stdc.string:memcpy;
+    import core.stdc.string:memset;
     T* ptr = cast(T*)igMemAlloc(T.sizeof);
-    //emplace(ptr);
-    //*ptr = T();
-    //T t;
-    //memcpy(ptr, &t, T.sizeof);
+    //*ptr = T.init;
     return cast(T*)ptr;
 }
 
 //Using viewport branch right now, don't want to bother master as it is already 900 commits behind viwport
 enum CIMGUI_VIEWPORT_BRANCH = true;
-
 
 //Now the more specifics one that should not be used extensively
 /**

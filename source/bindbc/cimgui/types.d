@@ -726,32 +726,33 @@ struct ImGuiPlatformMonitor
     ImVec2 WorkSize;
     float DpiScale;
 }
-struct ImGuiPlatformIO
+extern(C) struct ImGuiPlatformIO
 {
-    void function(ImGuiViewport*) Platform_CreateWindow;
-    void function(ImGuiViewport*) Platform_DestroyWindow;
-    void function(ImGuiViewport*) Platform_ShowWindow;
-    void function(ImGuiViewport*, ImVec2) Platform_SetWindowPos;
-    ImVec2 function(ImGuiViewport*) Platform_GetWindowPos;
-    void function(ImGuiViewport*, ImVec2) Platform_SetWindowSize;
-    ImVec2 function(ImGuiViewport*) Platform_GetWindowSize;
-    void function(ImGuiViewport*) Platform_SetWindowFocus;
-    bool function(ImGuiViewport*) Platform_GetWindowFocus;
-    bool function(ImGuiViewport*) Platform_GetWindowMinimized;
-    void function(ImGuiViewport*, const(char)*) Platform_SetWindowTitle;
-    void function(ImGuiViewport*, float) Platform_SetWindowAlpha;
-    void function(ImGuiViewport*) Platform_UpdateWindow;
-    void function(ImGuiViewport*, void*) Platform_RenderWindow;
-    void function(ImGuiViewport*, void*) Platform_SwapBuffers;
-    float function(ImGuiViewport*) Platform_GetWindowDpiScale;
-    void function(ImGuiViewport*) Platform_OnChangedViewport;
-    void function(ImGuiViewport*, ImVec2) Platform_SetImeInputPos;
-    int function(ImGuiViewport*, ulong, const(void)*, ulong*) Platform_CreateVkSurface;
-    void function(ImGuiViewport*) Renderer_CreateWindow;
-    void function(ImGuiViewport*) Renderer_DestroyWindow;
-    void function(ImGuiViewport*, ImVec2) Renderer_SetWindowSize;
-    void function(ImGuiViewport*, void*) Renderer_RenderWindow;
-    void function(ImGuiViewport*, void*) Renderer_SwapBuffers;
+    extern(System) void function(ImGuiViewport*) Platform_CreateWindow;
+    extern(System) void function(ImGuiViewport*) Platform_DestroyWindow;
+    extern(System) void function(ImGuiViewport*) Platform_ShowWindow;
+    extern(System) void function(ImGuiViewport*, ImVec2) Platform_SetWindowPos;
+    extern(System) ImVec2 function(ImGuiViewport*) Platform_GetWindowPos;
+    extern(System) void function(ImGuiViewport*, ImVec2) Platform_SetWindowSize;
+    extern(System) ImVec2 function(ImGuiViewport*) Platform_GetWindowSize;
+    extern(System) void function(ImGuiViewport*) Platform_SetWindowFocus;
+    extern(System) bool function(ImGuiViewport*) Platform_GetWindowFocus;
+    extern(System) bool function(ImGuiViewport*) Platform_GetWindowMinimized;
+    extern(System) void function(ImGuiViewport*, const(char)*) Platform_SetWindowTitle;
+    extern(System) void function(ImGuiViewport*, float) Platform_SetWindowAlpha;
+    extern(System) void function(ImGuiViewport*) Platform_UpdateWindow;
+    extern(System) void function(ImGuiViewport*, void*) Platform_RenderWindow;
+    extern(System) void function(ImGuiViewport*, void*) Platform_SwapBuffers;
+    extern(System) float function(ImGuiViewport*) Platform_GetWindowDpiScale;
+    extern(System) void function(ImGuiViewport*) Platform_OnChangedViewport;
+    extern(System) void function(ImGuiViewport*, ImVec2) Platform_SetImeInputPos;
+    extern(System) int function(ImGuiViewport*, ulong, const(void)*, ulong*) Platform_CreateVkSurface;
+    
+    extern(System) void function(ImGuiViewport*) Renderer_CreateWindow;
+    extern(System) void function(ImGuiViewport*) Renderer_DestroyWindow;
+    extern(System) void function(ImGuiViewport*, ImVec2) Renderer_SetWindowSize;
+    extern(System) void function(ImGuiViewport*, void*) Renderer_RenderWindow;
+    extern(System) void function(ImGuiViewport*, void*) Renderer_SwapBuffers;
     ImVector_ImGuiPlatformMonitor Monitors;
     ImGuiViewport* MainViewport;
     ImVector_ImGuiViewportPtr Viewports;
@@ -1484,12 +1485,17 @@ struct ImVector_ImGuiViewportPtr
     int Size;
     int Capacity;
     ImGuiViewport** Data;
+
+    ImGuiViewport* opIndex(int i){return Data[i];} //Need for the viewport implementation
+
 }
 struct ImVector_ImGuiViewportPPtr
 {
     int Size;
     int Capacity;
     ImGuiViewportP** Data;
+
+    ImGuiViewportP* opIndex(int i){return Data[i];} //Need for the viewport implementation
 }
 struct ImVector_ImGuiWindowPtr
 {

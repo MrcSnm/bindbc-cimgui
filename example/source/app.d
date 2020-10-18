@@ -38,15 +38,33 @@ SDL_Window* createSDL_GL_Window()
 	return window;
 }
 
-
-int main()
+void loadLibs()
 {
     loadSDL();
     loadSDLImage();
     loadSDLTTF();
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    if(!loadcimgui())
+
+    import bindbc.loader : SharedLib;
+    void function (SharedLib lib) additionalLoadAll;
+    static if(!CIMGUI_USER_DEFINED_IMPLEMENTATION)
+    {
+        additionalLoadAll = (SharedLib lib)
+        {
+            //bindGLImgui(lib);
+            // bindSDLImgui(lib);
+        };
+    }
+    if(!loadcimgui(additionalLoadAll))
         writeln("Could not read cimgui");
+
+
+}
+
+
+int main()
+{
+    loadLibs();
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     gWindow = createSDL_GL_Window();
 
     auto ctx = igCreateContext(null);
@@ -129,7 +147,7 @@ int main()
                 SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
                 SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
                 igUpdatePlatformWindows();
-                igRenderPlatformWindowsDefault(null,null);
+                igRenderPlatformWindowsDefault(cast(void*)0,cast(void*)0);
                 SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
             }
         }
