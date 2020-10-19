@@ -7,7 +7,6 @@
 module imgui_backend.impl_opengl3;
 import bindbc.cimgui;
 
-import std.stdio : writeln, writefln;
 import std.conv:to;
 import core.stdc.stdio;
 
@@ -716,7 +715,7 @@ static if(CIMGUI_USER_DEFINED_GL)
     // If you are new to dear imgui or creating a new binding for dear imgui, it is recommended that you completely ignore this section first..
     //--------------------------------------------------------------------------------------------------------
 
-    extern(System) static void ImGui_ImplOpenGL3_RenderWindow(ImGuiViewport* viewport, void*)
+    extern(C) static void ImGui_ImplOpenGL3_RenderWindow(ImGuiViewport* viewport, void*)
     {
         //viewport = cast(ImGuiViewport*)param;
         if (!(viewport.Flags & ImGuiViewportFlags_NoRendererClear))

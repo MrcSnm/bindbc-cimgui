@@ -10,7 +10,7 @@ import bindbc.cimgui.funcs : igMemAlloc, igMemFree;
 import core.stdc.string : memcpy;
 //This file is non auto generated, it may be better creating one file which will contain every manually added change
 
-enum ImDrawCallback_ResetRenderState = cast(ImDrawCallback)(-1);
+extern(C) enum ImDrawCallback_ResetRenderState = cast(ImDrawCallback)(-1);
 enum IM_OFFSETOF(alias member) = member.offsetof;
 enum IM_FREE(T)(ref T* ptr){igMemFree(cast(void*)ptr);}
 enum IM_ALLOC(size_t size){return igMemAlloc(size);}
@@ -89,4 +89,38 @@ void ImVector_push_back(T)(ref T vec, const ref typeof(*T.Data) v)
         _reserve!T(vec, _grow_capacity!T(vec, vec.Size + 1));
     memcpy(&vec.Data[vec.Size], &v, v.sizeof);
     vec.Size++; 
+}
+
+//NOT AUTO-GENERATED, CIMGUI SPECIFIC:
+
+static if(CIMGUI_VIEWPORT_BRANCH)
+{
+    // NOTE: Some function pointers in the ImGuiPlatformIO structure are not C-compatible because of their
+// use of a complex return type. To work around this, we store a custom CimguiStorage object inside
+// ImGuiIO::BackendLanguageUserData, which contains C-compatible function pointer variants for these
+// functions. When a user function pointer is provided, we hook up the underlying ImGuiPlatformIO
+// function pointer to a thunk which accesses the user function pointer through CimguiStorage.
+    import bindbc.cimgui.types;
+
+    extern(C) struct CimguiStorage
+    {
+        void function (ImGuiViewport* vp, ImVec2* out_pos) Platform_GetWindowPos;
+        void function (ImGuiViewport* vp, ImVec2* out_pos) Platform_GetWindowSize;
+    }
+    extern(C) @nogc nothrow
+    {
+        alias pImGuiPlatformIO_Set_Platform_GetWindowPos = void function(ImGuiPlatformIO* platform_io, void function (ImGuiViewport* vp, ImVec2* out_pos) user_callback);
+        alias pImGuiPlatformIO_Set_Platform_GetWindowSize = void function(ImGuiPlatformIO* platform_io, void function(ImGuiViewport* vp, ImVec2* out_size) user_callback);
+    } 
+    __gshared
+    {
+        pImGuiPlatformIO_Set_Platform_GetWindowPos ImGuiPlatformIO_Set_Platform_GetWindowPos;
+        pImGuiPlatformIO_Set_Platform_GetWindowSize ImGuiPlatformIO_Set_Platform_GetWindowSize;
+    }
+    import bindbc.loader:SharedLib, bindSymbol;
+    package void bindCimguiStorage(SharedLib lib)
+    {
+        lib.bindSymbol(cast(void**)&ImGuiPlatformIO_Set_Platform_GetWindowPos, "ImGuiPlatformIO_Set_Platform_GetWindowPos");
+        lib.bindSymbol(cast(void**)&ImGuiPlatformIO_Set_Platform_GetWindowSize, "ImGuiPlatformIO_Set_Platform_GetWindowSize");
+    }
 }

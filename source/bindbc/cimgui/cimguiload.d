@@ -2,6 +2,7 @@ module bindbc.cimgui.cimguiload;
 import bindbc.loader;
 import bindbc.cimgui.types;
 import bindbc.cimgui.funcs;
+import bindbc.cimgui.additional;
 private
 {
 	SharedLib lib;
@@ -1120,4 +1121,6 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&ImVector_ImWchar_UnInit, "ImVector_ImWchar_UnInit");
 	if(additionalLoad != null)
 		additionalLoad(lib);
+	static if(CIMGUI_VIEWPORT_BRANCH)
+		bindCimguiStorage(lib);
 }

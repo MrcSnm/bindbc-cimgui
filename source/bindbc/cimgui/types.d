@@ -365,6 +365,7 @@ struct ImGuiStyleMod
 }
 struct ImGuiSettingsHandler
 {
+    extern(C):
     const(char)* TypeName;
     uint TypeHash;
     void function(ImGuiContext*, ImGuiSettingsHandler*) ClearAllFn;
@@ -395,6 +396,7 @@ struct ImGuiNextItemData
 }
 struct ImGuiNextWindowData
 {
+    extern(C):
     int Flags;
     int PosCond;
     int SizeCond;
@@ -443,6 +445,7 @@ struct ImGuiLastItemDataBackup
 }
 struct ImGuiInputTextState
 {
+    extern(C):
     uint ID;
     int CurLenW;
     int CurLenA;
@@ -728,31 +731,31 @@ struct ImGuiPlatformMonitor
 }
 extern(C) struct ImGuiPlatformIO
 {
-    extern(System) void function(ImGuiViewport*) Platform_CreateWindow;
-    extern(System) void function(ImGuiViewport*) Platform_DestroyWindow;
-    extern(System) void function(ImGuiViewport*) Platform_ShowWindow;
-    extern(System) void function(ImGuiViewport*, ImVec2) Platform_SetWindowPos;
-    extern(System) ImVec2 function(ImGuiViewport*) Platform_GetWindowPos;
-    extern(System) void function(ImGuiViewport*, ImVec2) Platform_SetWindowSize;
-    extern(System) ImVec2 function(ImGuiViewport*) Platform_GetWindowSize;
-    extern(System) void function(ImGuiViewport*) Platform_SetWindowFocus;
-    extern(System) bool function(ImGuiViewport*) Platform_GetWindowFocus;
-    extern(System) bool function(ImGuiViewport*) Platform_GetWindowMinimized;
-    extern(System) void function(ImGuiViewport*, const(char)*) Platform_SetWindowTitle;
-    extern(System) void function(ImGuiViewport*, float) Platform_SetWindowAlpha;
-    extern(System) void function(ImGuiViewport*) Platform_UpdateWindow;
-    extern(System) void function(ImGuiViewport*, void*) Platform_RenderWindow;
-    extern(System) void function(ImGuiViewport*, void*) Platform_SwapBuffers;
-    extern(System) float function(ImGuiViewport*) Platform_GetWindowDpiScale;
-    extern(System) void function(ImGuiViewport*) Platform_OnChangedViewport;
-    extern(System) void function(ImGuiViewport*, ImVec2) Platform_SetImeInputPos;
-    extern(System) int function(ImGuiViewport*, ulong, const(void)*, ulong*) Platform_CreateVkSurface;
+    extern(C) void function(ImGuiViewport*) Platform_CreateWindow;
+    extern(C) void function(ImGuiViewport*) Platform_DestroyWindow;
+    extern(C) void function(ImGuiViewport*) Platform_ShowWindow;
+    extern(C) void function(ImGuiViewport*, ImVec2) Platform_SetWindowPos;
+    extern(C) ImVec2 function(ImGuiViewport*) Platform_GetWindowPos;
+    extern(C) void function(ImGuiViewport*, ImVec2) Platform_SetWindowSize;
+    extern(C) ImVec2 function(ImGuiViewport*) Platform_GetWindowSize;
+    extern(C) void function(ImGuiViewport*) Platform_SetWindowFocus;
+    extern(C) bool function(ImGuiViewport*) Platform_GetWindowFocus;
+    extern(C) bool function(ImGuiViewport*) Platform_GetWindowMinimized;
+    extern(C) void function(ImGuiViewport*, const(char)*) Platform_SetWindowTitle;
+    extern(C) void function(ImGuiViewport*, float) Platform_SetWindowAlpha;
+    extern(C) void function(ImGuiViewport*) Platform_UpdateWindow;
+    extern(C) void function(ImGuiViewport*, void*) Platform_RenderWindow;
+    extern(C) void function(ImGuiViewport*, void*) Platform_SwapBuffers;
+    extern(C) float function(ImGuiViewport*) Platform_GetWindowDpiScale;
+    extern(C) void function(ImGuiViewport*) Platform_OnChangedViewport;
+    extern(C) void function(ImGuiViewport*, ImVec2) Platform_SetImeInputPos;
+    extern(C) int function(ImGuiViewport*, ulong, const(void)*, ulong*) Platform_CreateVkSurface;
     
-    extern(System) void function(ImGuiViewport*) Renderer_CreateWindow;
-    extern(System) void function(ImGuiViewport*) Renderer_DestroyWindow;
-    extern(System) void function(ImGuiViewport*, ImVec2) Renderer_SetWindowSize;
-    extern(System) void function(ImGuiViewport*, void*) Renderer_RenderWindow;
-    extern(System) void function(ImGuiViewport*, void*) Renderer_SwapBuffers;
+    extern(C) void function(ImGuiViewport*) Renderer_CreateWindow;
+    extern(C) void function(ImGuiViewport*) Renderer_DestroyWindow;
+    extern(C) void function(ImGuiViewport*, ImVec2) Renderer_SetWindowSize;
+    extern(C) void function(ImGuiViewport*, void*) Renderer_RenderWindow;
+    extern(C) void function(ImGuiViewport*, void*) Renderer_SwapBuffers;
     ImVector_ImGuiPlatformMonitor Monitors;
     ImGuiViewport* MainViewport;
     ImVector_ImGuiViewportPtr Viewports;
@@ -798,6 +801,7 @@ struct ImGuiInputTextCallbackData
 }
 struct ImGuiIO
 {
+    extern(C):
     int ConfigFlags;
     int BackendFlags;
     ImVec2 DisplaySize;
@@ -1232,6 +1236,7 @@ struct ImDrawData
 }
 struct ImDrawCmd
 {
+    extern(C):
     ImVec4 ClipRect;
     void* TextureId;
     uint VtxOffset;
@@ -1290,7 +1295,7 @@ alias ImU16 = ushort;
 alias ImS32 = int;
 alias ImU32 = uint;
 alias ImS64 = long;
-alias ImDrawCallback = void function(const(ImDrawList)*, const(ImDrawCmd)*);
+extern(C) alias ImDrawCallback = void function(const(ImDrawList)*, const(ImDrawCmd)*);
 alias ImDrawIdx = ushort;
 alias ImGuiDataAuthority = int;
 alias ImGuiLayoutType = int;

@@ -7,7 +7,7 @@
 module imgui_backend.impl_sdl;
 // // SDL
 
-enum CIMGUI_USER_DEFINED_IMPLEMENTATION = false;
+enum CIMGUI_USER_DEFINED_IMPLEMENTATION = true;
 import bindbc.sdl;
 
 static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
@@ -23,7 +23,6 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
                 ShowWindow, SW_SHOWNA, GWL_EXSTYLE, WS_EX_APPWINDOW, WS_EX_TOOLWINDOW;
         }
     }
-    import std.stdio:writeln;
 
     // // dear imgui: Platform Binding for SDL2
     // // This needs to be used along with a Renderer (e.g. DirectX11, OpenGL3, Vulkan..)
@@ -116,7 +115,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
     enum thumb_dead_zone = 8000;
 
 
-    static const (char)* ImGui_ImplSDL2_GetClipboardText(void*)
+    extern(C) static const (char)* ImGui_ImplSDL2_GetClipboardText(void*)
     {
         if (g_ClipboardTextData)
             SDL_free(g_ClipboardTextData);
@@ -125,7 +124,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
     }
 
 
-    static void ImGui_ImplSDL2_SetClipboardText(void*, const char* text)
+    extern(C) static void ImGui_ImplSDL2_SetClipboardText(void*, const char* text)
     {
         SDL_SetClipboardText(text);
     }
@@ -576,7 +575,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
             }
         }
 
-        extern(System) struct ImGuiViewportDataSDL2
+        extern(C) struct ImGuiViewportDataSDL2
         {
             SDL_Window*     Window;
             Uint32          WindowID;
@@ -589,7 +588,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
             // }
         }
 
-        extern(System) static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
+        extern(C) static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
         {
             //ImGuiViewportDataSDL2* data = IM_NEW!ImGuiViewportDataSDL2;
 
@@ -627,7 +626,6 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
             }
             //Should declare SDL_WindowFlags as an uint
             data.Window = SDL_CreateWindow("No Title Yet".ptr, cast(int)viewport.Pos.x, cast(int)viewport.Pos.y, cast(int)viewport.Size.x, cast(int)viewport.Size.y, cast(SDL_WindowFlags)sdl_flags);
-            writeln("DATA: ", viewport);
             data.WindowOwned = true;
             if (use_opengl)
             {
@@ -646,12 +644,9 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
                     viewport.PlatformHandleRaw = info.info.win.window;
             }
             viewport.PlatformUserData = data;
-            writeln("DATA: ", viewport.PlatformUserData);
-            writeln("Creating window");
-
         }
 
-        extern(System) static void ImGui_ImplSDL2_DestroyWindow(ImGuiViewport* viewport)
+        extern(C) static void ImGui_ImplSDL2_DestroyWindow(ImGuiViewport* viewport)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             if (ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData)
@@ -667,7 +662,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
             viewport.PlatformUserData = viewport.PlatformHandle = null;
         }
 
-        extern(System) static void ImGui_ImplSDL2_ShowWindow(ImGuiViewport* viewport)
+        extern(C) static void ImGui_ImplSDL2_ShowWindow(ImGuiViewport* viewport)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -696,57 +691,48 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
             SDL_ShowWindow(data.Window);
         }
 
-        extern(System) static ImVec2 ImGui_ImplSDL2_GetWindowPos(ImGuiViewport* viewport)
+        extern(C) static void ImGui_ImplSDL2_GetWindowPos(ImGuiViewport* viewport, ImVec2* _out_vec)
         {
-            //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
-            /*writeln(viewport);
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             int x = 0, y = 0;
             SDL_GetWindowPosition(data.Window, &x, &y);
-            writeln("GetWindowPos Viewport ID:", data.Window);
-            writeln(x, y);
-            return ImVec2(cast(float)x, cast(float)y);*/
-            return ImVec2(0f, 0f);
+            _out_vec.x = cast(float)x;
+            _out_vec.y = cast(float)y;
         }
 
-        extern(System) static void ImGui_ImplSDL2_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos)
+        extern(C) static void ImGui_ImplSDL2_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             SDL_SetWindowPosition(data.Window, cast(int)pos.x, cast(int)pos.y);
         }
 
-        extern(System) static ImVec2 ImGui_ImplSDL2_GetWindowSize(ImGuiViewport* viewport)
+        extern(C) static void ImGui_ImplSDL2_GetWindowSize(ImGuiViewport* viewport, ImVec2* _out_vec)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             int w = 0, h = 0;
             SDL_GetWindowSize(data.Window, &w, &h);
-            return ImVec2(cast(float)w, cast(float)h);
+            _out_vec.x = cast(float)w;
+            _out_vec.y = cast(float)h;
         }
 
-        extern(System) static void ImGui_ImplSDL2_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
+        extern(C) static void ImGui_ImplSDL2_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
-            writeln("Last function call SetWindowSize: ", viewport);
-            writeln("Last function call SetWindowSize: ", viewport.PlatformUserData);
             SDL_SetWindowSize(data.Window, cast(int)size.x, cast(int)size.y);
         }
 
-        extern(System) static void ImGui_ImplSDL2_SetWindowTitle(ImGuiViewport* viewport, const (char)* title)
+        extern(C) static void ImGui_ImplSDL2_SetWindowTitle(ImGuiViewport* viewport, const (char)* title)
         {
-            //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
-            writeln(igGetPlatformIO().Viewports.Data[0]);
-            writeln("AAAA:", viewport.PlatformUserData);
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
-            //writeln(data);
-            //SDL_SetWindowTitle(data.Window, title);
+            SDL_SetWindowTitle(data.Window, title);
         }
 
         static if(SDL_HAS_WINDOW_ALPHA)
         {
-            extern(System) static void ImGui_ImplSDL2_SetWindowAlpha(ImGuiViewport* viewport, float alpha)
+            extern(C) static void ImGui_ImplSDL2_SetWindowAlpha(ImGuiViewport* viewport, float alpha)
             {
                 //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
                 ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -754,29 +740,27 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
             }
         }
 
-        extern(System) static void ImGui_ImplSDL2_SetWindowFocus(ImGuiViewport* viewport)
+        extern(C) static void ImGui_ImplSDL2_SetWindowFocus(ImGuiViewport* viewport)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             SDL_RaiseWindow(data.Window);
         }
 
-        extern(System) static bool ImGui_ImplSDL2_GetWindowFocus(ImGuiViewport* viewport)
+        extern(C) static bool ImGui_ImplSDL2_GetWindowFocus(ImGuiViewport* viewport)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             return (SDL_GetWindowFlags(data.Window) & SDL_WINDOW_INPUT_FOCUS) != 0;
         }
 
-        extern(System) static bool ImGui_ImplSDL2_GetWindowMinimized(ImGuiViewport* viewport)
+        extern(C) static bool ImGui_ImplSDL2_GetWindowMinimized(ImGuiViewport* viewport)
         {
-            //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
-            writeln("GetWindowMinimized ViewportData: ", viewport);
             return (SDL_GetWindowFlags(data.Window) & SDL_WINDOW_MINIMIZED) != 0;
         }
 
-        extern(System) static void ImGui_ImplSDL2_RenderWindow(ImGuiViewport* viewport, void*)
+        extern(C) static void ImGui_ImplSDL2_RenderWindow(ImGuiViewport* viewport, void*)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -784,7 +768,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
               SDL_GL_MakeCurrent(data.Window, data.GLContext);
         }
 
-        extern(System) static void ImGui_ImplSDL2_SwapBuffers(ImGuiViewport* viewport, void*)
+        extern(C) static void ImGui_ImplSDL2_SwapBuffers(ImGuiViewport* viewport, void*)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -798,7 +782,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
         static if(SDL_HAS_VULKAN && g_UseVulkan)
         {
             import bindbc.vulkan; //Don't know if it is already there
-            extern(System) static int ImGui_ImplSDL2_CreateVkSurface(ImGuiViewport* viewport, ImU64 vk_instance, const void* vk_allocator, ImU64* out_vk_surface)
+            extern(C) static int ImGui_ImplSDL2_CreateVkSurface(ImGuiViewport* viewport, ImU64 vk_instance, const void* vk_allocator, ImU64* out_vk_surface)
             {
                 //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
                 ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -807,7 +791,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
                 return ret ? 0 : 1; // ret ? VK_SUCCESS : VK_NOT_READY
             }
         }
-        extern(System) static void ImGui_ImplSDL2_InitPlatformInterface(SDL_Window* window, void* sdl_gl_context)
+        extern(C) static void ImGui_ImplSDL2_InitPlatformInterface(SDL_Window* window, void* sdl_gl_context)
         {
             // Register platform interface (will be coupled with a renderer interface)
             
@@ -817,9 +801,12 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
             platform_io.Platform_DestroyWindow = &ImGui_ImplSDL2_DestroyWindow;
             platform_io.Platform_ShowWindow = &ImGui_ImplSDL2_ShowWindow;
             platform_io.Platform_SetWindowPos = &ImGui_ImplSDL2_SetWindowPos;
-            platform_io.Platform_GetWindowPos = &ImGui_ImplSDL2_GetWindowPos;
+
+            ImGuiPlatformIO_Set_Platform_GetWindowPos(platform_io, &ImGui_ImplSDL2_GetWindowPos);
+            // platform_io.Platform_GetWindowPos = &ImGui_ImplSDL2_GetWindowPos;
             platform_io.Platform_SetWindowSize = &ImGui_ImplSDL2_SetWindowSize;
-            platform_io.Platform_GetWindowSize = &ImGui_ImplSDL2_GetWindowSize;
+            // platform_io.Platform_GetWindowSize = &ImGui_ImplSDL2_GetWindowSize;
+            ImGuiPlatformIO_Set_Platform_GetWindowSize(platform_io, &ImGui_ImplSDL2_GetWindowSize);
             platform_io.Platform_SetWindowFocus = &ImGui_ImplSDL2_SetWindowFocus;
             platform_io.Platform_GetWindowFocus = &ImGui_ImplSDL2_GetWindowFocus;
             platform_io.Platform_GetWindowMinimized = &ImGui_ImplSDL2_GetWindowMinimized;
@@ -851,8 +838,6 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
             data.GLContext = sdl_gl_context;
             main_viewport.PlatformUserData = data;
             main_viewport.PlatformHandle = data.Window;
-            writeln("Init Interface Viewport Address: ", main_viewport);
-
             
         }
 
@@ -865,7 +850,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
 else //Uses DLL
 {
     import bindbc.loader : SharedLib, bindSymbol;
-    extern(System) @nogc nothrow
+    extern(C) @nogc nothrow
     {
         alias pImGui_ImplSDL2_InitForOpenGL = bool function(SDL_Window* window,void* sdl_gl_context);
         alias pImGui_ImplSDL2_InitForVulkan = bool function(SDL_Window* window);
