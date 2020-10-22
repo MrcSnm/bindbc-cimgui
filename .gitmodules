@@ -1,0 +1,6 @@
+[submodule "bindbc-generator"]
+	path = bindbc-generator
+	url = https://www.github.com/MrcSnm/bindbc-generator.git
+[submodule "cimgui"]
+	path = cimgui
+	url = https://www.github.com/cimgui/cimgui.git
