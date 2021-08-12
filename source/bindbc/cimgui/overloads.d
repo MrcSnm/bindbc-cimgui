@@ -2,7 +2,6 @@ module bindbc.cimgui.overloads;
 
 import bindbc.cimgui.funcs;
 import bindbc.cimgui.types;
-extern(C): 
 
 import core.stdc.stdarg;
 static template overload(Funcs...)
