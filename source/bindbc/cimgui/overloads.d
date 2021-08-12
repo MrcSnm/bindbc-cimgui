@@ -11,6 +11,10 @@ static template overload(Funcs...)
         auto overload(Parameters!f params){
             return f(params);}
 }
+
+alias pIgItemGetter = extern(C) bool function(void* data,int idx,const (char)** outText);
+alias pIgValueGetter = extern(C) float function(void* data,int idx);
+
 ImColor* newImColor(){return ImColor_ImColorNil();}
 ImColor* newImColor(int r,int g,int b,int a){return ImColor_ImColorInt(r,g,b,a);}
 ImColor* newImColor(ImU32 rgba){return ImColor_ImColorU32(rgba);}
@@ -59,7 +63,7 @@ bool igCollapsingHeader(const (char)* label,ImGuiTreeNodeFlags flags){return igC
 bool igCollapsingHeader(const (char)* label,bool* p_open,ImGuiTreeNodeFlags flags){return igCollapsingHeaderBoolPtr(label,p_open,flags);}
 bool igCombo(const (char)* label,int* current_item,const (char)* * items,int items_count,int popup_max_height_in_items){return igComboStr_arr(label,current_item,items,items_count,popup_max_height_in_items);}
 bool igCombo(const (char)* label,int* current_item,const (char)* items_separated_by_zeros,int popup_max_height_in_items){return igComboStr(label,current_item,items_separated_by_zeros,popup_max_height_in_items);}
-bool igCombo(const (char)* label,int* current_item,bool function(void* data,int idx,const (char)** out_text) items_getter,void* data,int items_count,int popup_max_height_in_items){return igComboFnBoolPtr(label,current_item,items_getter,data,items_count,popup_max_height_in_items);}
+bool igCombo(const (char)* label,int* current_item, pIgItemGetter items_getter,void* data,int items_count,int popup_max_height_in_items){return igComboFnBoolPtr(label,current_item,items_getter,data,items_count,popup_max_height_in_items);}
 ImDrawList* igGetBackgroundDrawList(){return igGetBackgroundDrawListNil();}
 ImDrawList* igGetBackgroundDrawList(ImGuiViewport* viewport){return igGetBackgroundDrawListViewportPtr(viewport);}
 ImU32 igGetColorU32(ImGuiCol idx,float alpha_mul){return igGetColorU32Col(idx,alpha_mul);}
@@ -93,7 +97,7 @@ bool igIsRectVisible(const ImVec2 rect_min,const ImVec2 rect_max){return igIsRec
 void igItemSize(const ImVec2 size,float text_baseline_y){igItemSizeVec2(size,text_baseline_y);}
 void igItemSize(const ImRect bb,float text_baseline_y){igItemSizeRect(bb,text_baseline_y);}
 bool igListBox(const (char)* label,int* current_item,const (char)* * items,int items_count,int height_in_items){return igListBoxStr_arr(label,current_item,items,items_count,height_in_items);}
-bool igListBox(const (char)* label,int* current_item,bool function(void* data,int idx,const (char)** out_text) items_getter,void* data,int items_count,int height_in_items){return igListBoxFnBoolPtr(label,current_item,items_getter,data,items_count,height_in_items);}
+bool igListBox(const (char)* label,int* current_item, pIgItemGetter items_getter,void* data,int items_count,int height_in_items){return igListBoxFnBoolPtr(label,current_item,items_getter,data,items_count,height_in_items);}
 bool igListBoxHeader(const (char)* label,const ImVec2 size){return igListBoxHeaderVec2(label,size);}
 bool igListBoxHeader(const (char)* label,int items_count,int height_in_items){return igListBoxHeaderInt(label,items_count,height_in_items);}
 void igMarkIniSettingsDirty(){igMarkIniSettingsDirtyNil();}
@@ -101,9 +105,9 @@ void igMarkIniSettingsDirty(ImGuiWindow* window){igMarkIniSettingsDirtyWindowPtr
 bool igMenuItem(const (char)* label,const (char)* shortcut,bool selected,bool enabled){return igMenuItemBool(label,shortcut,selected,enabled);}
 bool igMenuItem(const (char)* label,const (char)* shortcut,bool* p_selected,bool enabled){return igMenuItemBoolPtr(label,shortcut,p_selected,enabled);}
 void igPlotHistogram(const (char)* label,const float* values,int values_count,int values_offset,const (char)* overlay_text,float scale_min,float scale_max,ImVec2 graph_size,int stride){igPlotHistogramFloatPtr(label,values,values_count,values_offset,overlay_text,scale_min,scale_max,graph_size,stride);}
-void igPlotHistogram(const (char)* label,float function(void* data,int idx) values_getter,void* data,int values_count,int values_offset,const (char)* overlay_text,float scale_min,float scale_max,ImVec2 graph_size){igPlotHistogramFnFloatPtr(label,values_getter,data,values_count,values_offset,overlay_text,scale_min,scale_max,graph_size);}
+void igPlotHistogram(const (char)* label, pIgValueGetter values_getter,void* data,int values_count,int values_offset,const (char)* overlay_text,float scale_min,float scale_max,ImVec2 graph_size){igPlotHistogramFnFloatPtr(label,values_getter,data,values_count,values_offset,overlay_text,scale_min,scale_max,graph_size);}
 void igPlotLines(const (char)* label,const float* values,int values_count,int values_offset,const (char)* overlay_text,float scale_min,float scale_max,ImVec2 graph_size,int stride){igPlotLinesFloatPtr(label,values,values_count,values_offset,overlay_text,scale_min,scale_max,graph_size,stride);}
-void igPlotLines(const (char)* label,float function(void* data,int idx) values_getter,void* data,int values_count,int values_offset,const (char)* overlay_text,float scale_min,float scale_max,ImVec2 graph_size){igPlotLinesFnFloatPtr(label,values_getter,data,values_count,values_offset,overlay_text,scale_min,scale_max,graph_size);}
+void igPlotLines(const (char)* label, pIgValueGetter values_getter,void* data,int values_count,int values_offset,const (char)* overlay_text,float scale_min,float scale_max,ImVec2 graph_size){igPlotLinesFnFloatPtr(label,values_getter,data,values_count,values_offset,overlay_text,scale_min,scale_max,graph_size);}
 void igPushID(const (char)* str_id){igPushIDStr(str_id);}
 void igPushID(const (char)* str_id_begin,const (char)* str_id_end){igPushIDStrStr(str_id_begin,str_id_end);}
 void igPushID(const void* ptr_id){igPushIDPtr(ptr_id);}
