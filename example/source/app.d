@@ -25,8 +25,7 @@ SDL_Window* createSDL_GL_Window()
 	SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_STENCIL_SIZE, 8);
-	alias f = SDL_WindowFlags;
-	SDL_WindowFlags flags = (f.SDL_WINDOW_OPENGL | f.SDL_WINDOW_RESIZABLE | f.SDL_WINDOW_ALLOW_HIGHDPI);
+	SDL_WindowFlags flags = (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
 	SDL_Window* window = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, flags);
 	SDL_GLContext ctx = SDL_GL_CreateContext(window);
@@ -46,11 +45,11 @@ void loadLibs()
 
     import bindbc.loader : SharedLib;
     void function (SharedLib lib) additionalLoadAll;
-    static if(!CIMGUI_USER_DEFINED_IMPLEMENTATION)
+    static if(!CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
     {
         additionalLoadAll = (SharedLib lib)
         {
-            //bindGLImgui(lib);
+            // bindGLImgui(lib);
             //bindSDLImgui(lib);
         };
     }
@@ -74,7 +73,7 @@ int main()
     io.DisplaySize.y = 720;
     io.DeltaTime = 1f / 60f;
     //For the non docking
-    static if(CIMGUI_VIEWPORT_BRANCH)
+    version(CIMGUI_VIEWPORT_BRANCH)
     {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
@@ -105,7 +104,7 @@ int main()
 				case SDL_QUIT:
 					quit = true;
 					break;
-                static if(CIMGUI_VIEWPORT_BRANCH)
+                version(CIMGUI_VIEWPORT_BRANCH)
                 {
                     case SDL_WINDOWEVENT:
                     if (e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(gWindow))
@@ -140,7 +139,7 @@ int main()
         igRender();
         ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
 
-        static if(CIMGUI_VIEWPORT_BRANCH)
+        version(CIMGUI_VIEWPORT_BRANCH)
         {
             if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
             {

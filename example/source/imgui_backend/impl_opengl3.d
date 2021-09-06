@@ -13,8 +13,8 @@ import core.stdc.stdio;
 import core.stdc.string;
 import core.stdc.stdint : intptr_t;
 
-enum CIMGUI_USER_DEFINED_GL = true;
-
+/// Whether to use the implementation defined in D or link to compiled ImGui backends instead
+enum CIMGUI_USER_DEFINED_IMPLEMENTATION_GL = true;
 
 // dear imgui: Renderer for modern OpenGL with shaders / programmatic pipeline
 // - Desktop GL: 2.x 3.x 4.x
@@ -87,25 +87,28 @@ enum CIMGUI_USER_DEFINED_GL = true;
 //  ES 3.0    300       "#version 300 es"   = WebGL 2.0
 //----------------------------------------
 
-enum _MSC_VER = -1;
+// OpenGL version specifiers
 enum IMGUI_IMPL_OPENGL_ES2 = false;
 enum GL_VERSION_3_2 = false;
 enum GL_VERSION_3_3 = false;
 enum IMGUI_IMPL_OPENGL_ES3 = false;
+
 enum IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER = false;
 enum IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET = false;
 
+/// Unused
+enum _MSC_VER = -1;
 
-static if(CIMGUI_USER_DEFINED_GL)
+static if(CIMGUI_USER_DEFINED_IMPLEMENTATION_GL)
 {
     // GL includes
     static if(IMGUI_IMPL_OPENGL_ES2)
     {
-        //#include <GLES2/gl2.h>
+        static assert(0, "This is not yet implemented");
     }
-    else static if(IMGUI_IMPL_OPENGL_ES3)
+    static if(IMGUI_IMPL_OPENGL_ES3)
     {
-        //#include <GLES3/gl3.h>          // Use GL ES 3
+        static assert(0, "This is not yet implemented");
     }
     else
     {
@@ -114,18 +117,18 @@ static if(CIMGUI_USER_DEFINED_GL)
         //  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
         //  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
         //  You may use another loader/header of your choice (glext, glLoadGen, etc.), or chose to manually implement your own.
-    }
+        //  In this case you may also need to change some of this code
 
-    // Desktop GL 3.2+ has glDrawElementsBaseVertex() which GL ES and WebGL don't have.
-    static if(!IMGUI_IMPL_OPENGL_ES2 && !IMGUI_IMPL_OPENGL_ES3 && GL_VERSION_3_2)
-    {
-        enum IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET = true;
-    }
-
-    // Desktop GL 3.3+ has glBindSampler()
-    static if(!IMGUI_IMPL_OPENGL_ES2 && !IMGUI_IMPL_OPENGL_ES3 && GL_VERSION_3_3)
-    {
-        enum IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER = true;
+        // Desktop GL 3.2+ has glDrawElementsBaseVertex() which GL ES and WebGL don't have.
+        static if(GL_VERSION_3_2)
+        {
+            enum IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET = true;
+        }
+        // Desktop GL 3.3+ has glBindSampler()
+        static if(GL_VERSION_3_3)
+        {
+            enum IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER = true;
+        }
     }
 
     // OpenGL Data
@@ -141,19 +144,20 @@ static if(CIMGUI_USER_DEFINED_GL)
     bool    ImGui_ImplOpenGL3_Init(const (char)* glsl_version)
     {
         // Query for GL version (e.g. 320 for GL 3.2)
-        static if(!IMGUI_IMPL_OPENGL_ES2)
+        static if(IMGUI_IMPL_OPENGL_ES2)
+        {
+            g_GlVersion = 200; // GLES 2
+        }
+        else
         {
             GLint major, minor;
             glGetIntegerv(GL_MAJOR_VERSION, &major);
             glGetIntegerv(GL_MINOR_VERSION, &minor);
             g_GlVersion = cast(GLuint)(major * 100 + minor * 10);
         }
-        else
-        {
-            g_GlVersion = 200; // GLES 2
-        }
+        
 
-            // Setup back-end capabilities flags
+        // Setup back-end capabilities flags
         ImGuiIO* io = igGetIO();
         io.BackendRendererName = "imgui_impl_opengl3";
         static if(IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET)
@@ -165,27 +169,30 @@ static if(CIMGUI_USER_DEFINED_GL)
 
         // Store GLSL version string so we can refer to it later in case we recreate shaders.
         // Note: GLSL version is NOT the same as GL version. Leave this to null if unsure.
-        version(IMGUI_IMPL_OPENGL_ES2)
+        static if(IMGUI_IMPL_OPENGL_ES2)
         {
             if (glsl_version == "")
                 glsl_version = "#version 100";
         }
-        version(IMGUI_IMPL_OPENGL_ES3)
+        static if(IMGUI_IMPL_OPENGL_ES3)
         {
             if (glsl_version == "")
                 glsl_version = "#version 300 es";
         }
-        version(__APPLE__)
-        {
-            if (glsl_version == "")
-                glsl_version = "#version 150";
-        }
         else
         {
-            if (glsl_version == "")
-                glsl_version = "#version 130";
+            version(__APPLE__)
+            {
+                if (glsl_version == "")
+                    glsl_version = "#version 150";
+            }
+            else
+            {
+                if (glsl_version == "")
+                    glsl_version = "#version 130";
+            }
         }
-        import std.conv:to;
+        import std.conv : to;
         IM_ASSERT(cast(int)strlen(glsl_version) + 2 < IM_ARRAYSIZE(g_GlslVersionString));
         strcpy(g_GlslVersionString.ptr, glsl_version);
         strcat(g_GlslVersionString.ptr, "\n");
@@ -200,6 +207,7 @@ static if(CIMGUI_USER_DEFINED_GL)
         // Make an arbitrary GL call (we don't actually need the result)
         // IF YOU GET A CRASH HERE: it probably means that you haven't initialized the OpenGL function loader used by this code.
         // Desktop OpenGL 3/4 need a function loader. See the IMGUI_IMPL_OPENGL_LOADER_xxx explanation above.
+        // Why not just static assert that it is bound?
         GLint current_texture;
         glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_texture);
 

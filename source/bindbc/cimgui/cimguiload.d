@@ -1121,6 +1121,8 @@ private bool _load()
 	lib.bindSymbol(cast(void**)&ImVector_ImWchar_UnInit, "ImVector_ImWchar_UnInit");
 	if(additionalLoad != null)
 		additionalLoad(lib);
-	static if(CIMGUI_VIEWPORT_BRANCH)
+	version(CIMGUI_VIEWPORT_BRANCH)
+	{
 		bindCimguiStorage(lib);
+	}
 }

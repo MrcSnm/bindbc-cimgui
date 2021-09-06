@@ -33,9 +33,6 @@ void IM_DELETE(T)(ref T* p){if(p)destroy(p); igMemFree(p);}
     return cast(T*)ptr;
 }
 
-//Using viewport branch right now, don't want to bother master as it is already 900 commits behind viwport
-enum CIMGUI_VIEWPORT_BRANCH = true;
-
 //Now the more specifics one that should not be used extensively
 /**
 * ImVector_reserve dependency
@@ -93,13 +90,13 @@ void ImVector_push_back(T)(ref T vec, const ref typeof(*T.Data) v)
 
 //NOT AUTO-GENERATED, CIMGUI SPECIFIC:
 
-static if(CIMGUI_VIEWPORT_BRANCH)
+version(CIMGUI_VIEWPORT_BRANCH)
 {
     // NOTE: Some function pointers in the ImGuiPlatformIO structure are not C-compatible because of their
-// use of a complex return type. To work around this, we store a custom CimguiStorage object inside
-// ImGuiIO::BackendLanguageUserData, which contains C-compatible function pointer variants for these
-// functions. When a user function pointer is provided, we hook up the underlying ImGuiPlatformIO
-// function pointer to a thunk which accesses the user function pointer through CimguiStorage.
+    // use of a complex return type. To work around this, we store a custom CimguiStorage object inside
+    // ImGuiIO::BackendLanguageUserData, which contains C-compatible function pointer variants for these
+    // functions. When a user function pointer is provided, we hook up the underlying ImGuiPlatformIO
+    // function pointer to a thunk which accesses the user function pointer through CimguiStorage.
     import bindbc.cimgui.types;
 
     extern(C) struct CimguiStorage

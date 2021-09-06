@@ -6,17 +6,18 @@
 
 module imgui_backend.impl_sdl;
 // // SDL
-
-enum CIMGUI_USER_DEFINED_IMPLEMENTATION = true;
 import bindbc.sdl;
 
-static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
+/// Whether to use the implemetation defined in D, or link against compiled ImGUI backend. 
+enum CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL = true;
+
+version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
 {
     import bindbc.cimgui;
     import core.stdc.string : memset, strncpy, strncmp;
     version(Windows)
     {
-        static if(CIMGUI_VIEWPORT_BRANCH)
+        version(CIMGUI_VIEWPORT_BRANCH)
         {
             pragma(lib, "user32");
             import core.sys.windows.windows : GetWindowLong, LONG, HWND, SetWindowLong,
@@ -847,7 +848,8 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION)
 
     }
 }
-else //Uses DLL
+else    // CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL
+        // binds functions dynamically
 {
     import bindbc.loader : SharedLib, bindSymbol;
     extern(C) @nogc nothrow

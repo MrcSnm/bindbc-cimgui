@@ -18,3 +18,5 @@ lib/**
 *.ttf
 *.ini
 .history
+
+build
