@@ -55,8 +55,6 @@ void loadLibs()
     }
     if(!loadcimgui(additionalLoadAll))
         writeln("Could not read cimgui");
-
-
 }
 
 
@@ -72,7 +70,8 @@ int main()
     io.DisplaySize.x = 1280;
     io.DisplaySize.y = 720;
     io.DeltaTime = 1f / 60f;
-    //For the non docking
+
+    // Use docking
     version(CIMGUI_VIEWPORT_BRANCH)
     {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
@@ -94,7 +93,6 @@ int main()
 
     while(!quit)
     {
-
         SDL_Event e;
 		while(SDL_PollEvent(&e)) 
 		{
