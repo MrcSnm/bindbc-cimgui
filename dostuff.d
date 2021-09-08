@@ -8,6 +8,7 @@ import std.algorithm;
 import std.process;
 import std.getopt;
 import std.experimental.logger;
+import std.stdio : writeln;
 
 struct Options
 {
@@ -42,34 +43,6 @@ void _error(string message)
     error(message);
 }
 
-auto _exec(string[] args, string workingDirectory = null)
-{
-    string cmd = escapeShellCommand(args);
-    log(cmd);
-    return executeShell(cmd, null, Config.none, size_t.max, workingDirectory, nativeShell);
-}
-
-bool existsCommand(string command)
-{
-    version (Windows)
-    {
-        return executeShell(escapeShellCommand(["where", command])).status == 0;
-    }
-    assert(0, "Linux and the alike are not implemented");
-}
-
-bool checkCommandsExist(string[] commands)
-{
-    foreach (command; commands)
-    {
-        if (!existsCommand(command))
-        {
-            _error("`" ~ command ~ "` not found in path");
-        }   
-    }
-    return !hasErrors;
-}
-
 int main(string[] args)
 {
     string getoptMixin()
@@ -83,9 +56,8 @@ int main(string[] args)
         ret ~= ");";
         return ret;
     }
-    // pragma(msg, getoptMixin());
     mixin(getoptMixin());
-    if (helpInformation.helpWanted)
+    if (helpInformation.helpWanted || args.length == 0)
     {
         defaultGetoptPrinter("Help message", helpInformation.options);
         return 0;
@@ -125,7 +97,7 @@ int main(string[] args)
         if (!op.dppExecutablePath)
             return 1;
 
-        log("Dpp written to " ~ op.dppExecutablePath);
+        log("Dpp has been written to " ~ op.dppExecutablePath);
     }
 
     if (op.compileImgui)
@@ -135,7 +107,7 @@ int main(string[] args)
         if (!outputDirectory)
             return 1;
         
-        log("Imgui binaries written to " ~ outputDirectory);
+        log("Imgui binaries have been written to " ~ outputDirectory);
     }
 
     if (op.generateBindings)
@@ -153,7 +125,7 @@ string takeAfterLast(string str, string pattern)
 }
 
 // Returns the path to the cloned repo
-string gitClone(string repoUrl, string branch = null)
+string gitClone(string repoUrl, bool recursive = true, string branch = null)
 {
     // `a/b/name` gives us `name`
     string repoName = repoUrl.takeAfterLast("/");
@@ -164,10 +136,14 @@ string gitClone(string repoUrl, string branch = null)
         return repoPath;
     }
 
-    string[] args = ["git", "clone", "--recursive", repoUrl];
+    string[] args = ["git", "clone", repoUrl];
     if (branch)
     {
         args ~= "--branch=" ~ branch;
+    }
+    if (recursive)
+    {
+        args ~= "--recursive";
     }
 
     auto result = _exec(args, op.tempDirectory);
@@ -209,17 +185,35 @@ string dppCompilationWorkflow()
     return dppExecutablePath;
 }
 
+string gitCloneImgui()
+{
+    const repoUrl = "https://www.github.com/cimgui/cimgui";
+    const commitHash = "a97c90ec4f32a5938dba3e1141827efad4efaa00";
+    const branch = "master";
+    const recursive = false;
+
+    const clonedRepoPath = gitClone(repoUrl, recursive, branch);
+    if (!clonedRepoPath)
+        return null;
+
+    auto result = _exec(["git", "checkout", commitHash], clonedRepoPath);
+    if (result.status != 0) return null;
+    
+    result = _exec(["git", "submodule", "init"], clonedRepoPath);
+    if (result.status != 0) return null;
+
+    result = _exec(["git", "submodule", "update", "--init", "--recursive"], clonedRepoPath);
+    if (result.status != 0) return null;
+    
+    return clonedRepoPath;
+}
+
 string imguiCompilationWorkflow()
 {
-    const imguiRepoUrl = "https://www.github.com/cimgui/cimgui";
-    const imguiCommitHash = "";
-    const imguiBranch = "docking_inter";
-
     if (!checkCommandsExist(["git", "cmake"]))
         return null;
     
-    // TODO: Clone a specific hash per version?
-    const imguiClonedRepoPath = gitClone(imguiRepoUrl, imguiBranch);
+    const imguiClonedRepoPath = gitCloneImgui();
     if (!imguiClonedRepoPath)
         return null;
 
@@ -252,34 +246,94 @@ string imguiCompilationWorkflow()
 
 void generateBindingsWorkflow()
 {
-    assert(0, "TODO: Not yet implemented");
-    // The steps:
-    // 1. Clone the generator if not yet provided.
-    // 2. Clone cimgui if it is not found in the temp directory.
-    // 3. Invoke the generator with the command from `generate/generate.bat`.
-    //
-    // I have already parametrized the plugins folder path, the temp folder path and the dpp path.
-    // We should make it not depend on its position in the source tree.
-    // We should allow to pass output folder as argument.
+    if (!checkCommandsExist(["git", "dub"]))
+        return;
+
+    string generatorRepoPath;
+    if (op.generatorRepoPath)
+    {
+        generatorRepoPath = op.generatorRepoPath;
+    }
+    else
+    {
+        generatorRepoPath = gitClone("https://github.com/AntonC9018/bindbc-generator");
+        if (!generatorRepoPath) 
+            return;
+    }
+
+    string imguiPath;
+    string cimguiHeaderPath;
+    if (op.cimguiHeaderPath)
+    {
+        imguiPath = dirName(op.cimguiHeaderPath);
+        cimguiHeaderPath = op.cimguiHeaderPath;
+    }
+    else
+    {    
+        imguiPath = gitCloneImgui();
+        if (!imguiPath)
+            return;
+        cimguiHeaderPath = buildPath(imguiPath, "cimgui.h");
+    }
 
 
-    // string generatorExecutable;
-    // string generatorFolder;
-    // if (op.generatorRepoPath)
-    // {
-    //     generatorFolder = op.generatorRepoPath;
-    // }
-    // else
-    // {
-    //     generatorFolder   
-    // }
+    string cimguiPluginGenPath = buildPath(op.tempDirectory, "bindbc/cimgui");
+    auto generatorArgs = [
+        "dub", "--", 
+        "--recompile", "--load-all", 
+        "--file", cimguiHeaderPath, 
+        "--temp-path", op.tempDirectory, 
+        "--plugin-args", 
+        `cimgui-overloads="[%s %s %s]"`.format(imguiPath, cimguiPluginGenPath, "d-conv"),
+        "--presets", "cimgui"
+    ];
+    if (op.dppExecutablePath)
+    {
+        generatorArgs ~= "--dpp-path";
+        generatorArgs ~= op.dppExecutablePath;
+    }
+    auto result = _exec(generatorArgs, generatorRepoPath);
+    if (result.status != 0)
+    {
+        _error("Failed to apply the generator: ");
+        writeln(result.output);
+        return;
+    }
+    writeln(result.output);
 
-    // version (Windows)
-    // {
-    //     generatorExecutable = buildPath(generatorFolder, "bin", "bindbc-generator.exe");
-    // }
-    // else
-    // {
-    //     assert(0, "Non-windows not supported yet");
-    // }
+    log("Find the output files somewhere in " ~ generatorRepoPath ~ " and in here " ~ cimguiPluginGenPath);
+}
+
+
+// void copyTree(string fromPath, string toPath)
+// {
+//     foreach (f
+// }
+
+auto _exec(string[] args, string workingDirectory = null)
+{
+    string cmd = escapeShellCommand(args);
+    log(cmd);
+    return executeShell(cmd, null, Config.none, size_t.max, workingDirectory, nativeShell);
+}
+
+bool existsCommand(string command)
+{
+    version (Windows)
+    {
+        return executeShell(escapeShellCommand(["where", command])).status == 0;
+    }
+    assert(0, "Linux and the alike are not implemented");
+}
+
+bool checkCommandsExist(string[] commands)
+{
+    foreach (command; commands)
+    {
+        if (!existsCommand(command))
+        {
+            _error("`" ~ command ~ "` not found in path");
+        }   
+    }
+    return !hasErrors;
 }
