@@ -199,8 +199,8 @@ string gitCloneImgui()
     auto result = _exec(["git", "checkout", commitHash], clonedRepoPath);
     if (result.status != 0) return null;
     
-    result = _exec(["git", "submodule", "init"], clonedRepoPath);
-    if (result.status != 0) return null;
+    // result = _exec(["git", "submodule", "init"], clonedRepoPath);
+    // if (result.status != 0) return null;
 
     result = _exec(["git", "submodule", "update", "--init", "--recursive"], clonedRepoPath);
     if (result.status != 0) return null;
@@ -284,6 +284,7 @@ void generateBindingsWorkflow()
         "--file", cimguiHeaderPath, 
         "--temp-path", op.tempDirectory, 
         "--plugin-args", 
+        // FIXME please. Change the format on this, or take the arguments more smartly, this is an actual disaster.
         `cimgui-overloads="[%s %s %s]"`.format(imguiPath, cimguiPluginGenPath, "d-conv"),
         "--presets", "cimgui"
     ];
@@ -314,7 +315,7 @@ auto _exec(string[] args, string workingDirectory = null)
 {
     string cmd = escapeShellCommand(args);
     log(cmd);
-    return executeShell(cmd, null, Config.none, size_t.max, workingDirectory, nativeShell);
+    return execute(args, null, Config.none, size_t.max, workingDirectory);
 }
 
 bool existsCommand(string command)

@@ -8,6 +8,10 @@ I only provide OpenGL3 and SDL2 backends (see the example folder).
 These are *not included* if you install this via dub. 
 You will have to copy them from the example folder.
 
+> VERY BIG SPOILER ALERT!
+> The generator for this is NOT fully automatic and will not work for newer version of imgui.
+> REGENERATE THE BINDINGS AT YOUR OWN RISK, you will likely have to do a lot of work to make it work.
+
 I made this binding with [bindbc-generator](https://github.com/MrcSnm/bindbc-generator) with some additional things that cimgui needs, found at `source/bindbc/cimgui/additional.d`.
 The only other dub package which provides ImGui bindings is [DerelicImGui](https://github.com/extrawurst/DerelictImgui), but it is pretty old, so I made this repo that I'll be supporting for my game engine [HipremeEngine](https://github.com/MrcSnm/HipremeEngine).
 
@@ -38,6 +42,8 @@ cmake --build build --config RelWithDebInfo
 ```
 
 [-H](https://cgold.readthedocs.io/en/latest/glossary/-H.html), [-B](https://cgold.readthedocs.io/en/latest/glossary/-B.html#b)
+
+Even better, @AntonC9018 made a helper script that helps with cloning the right hash of cimgui, building it, as well as downloading and building dpp, and running the bidings generator.
 
 If you need the ImGui backend implementations to be part of the library, include the source files in `cimgui/CMakeLists.txt`.
 
