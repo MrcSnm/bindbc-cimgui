@@ -188,21 +188,24 @@ string dppCompilationWorkflow()
 string gitCloneImgui()
 {
     const repoUrl = "https://www.github.com/cimgui/cimgui";
-    const commitHash = "a97c90ec4f32a5938dba3e1141827efad4efaa00";
-    const branch = "master";
+    const commitHash = null;//"a97c90ec4f32a5938dba3e1141827efad4efaa00";
+    const branch = "docking_inter";
     const recursive = false;
 
     const clonedRepoPath = gitClone(repoUrl, recursive, branch);
     if (!clonedRepoPath)
         return null;
 
-    auto result = _exec(["git", "checkout", commitHash], clonedRepoPath);
-    if (result.status != 0) return null;
+    if (commitHash)
+    {
+        auto result = _exec(["git", "checkout", commitHash], clonedRepoPath);
+        if (result.status != 0) return null;
+    }
     
     // result = _exec(["git", "submodule", "init"], clonedRepoPath);
     // if (result.status != 0) return null;
 
-    result = _exec(["git", "submodule", "update", "--init", "--recursive"], clonedRepoPath);
+    auto result = _exec(["git", "submodule", "update", "--init", "--recursive"], clonedRepoPath);
     if (result.status != 0) return null;
     
     return clonedRepoPath;
@@ -238,8 +241,6 @@ string imguiCompilationWorkflow()
 
     // The output should be in RelWithDebInfo
     const outputDirectory = buildPath(op.tempDirectory, "build", configuration);
-    log("The output of imgui compilation should be in " ~ outputDirectory);
-    
     return outputDirectory;
 }
 
@@ -256,7 +257,7 @@ void generateBindingsWorkflow()
     }
     else
     {
-        generatorRepoPath = gitClone("https://github.com/AntonC9018/bindbc-generator");
+        generatorRepoPath = gitClone("https://github.com/MrcSnm/bindbc-generator");
         if (!generatorRepoPath) 
             return;
     }
@@ -277,15 +278,12 @@ void generateBindingsWorkflow()
     }
 
 
-    string cimguiPluginGenPath = buildPath(op.tempDirectory, "bindbc/cimgui");
+    string cimguiPluginGenPath = buildPath(generatorRepoPath, "bindbc/cimgui");
     auto generatorArgs = [
         "dub", "--", 
         "--recompile", "--load-all", 
         "--file", cimguiHeaderPath, 
         "--temp-path", op.tempDirectory, 
-        "--plugin-args", 
-        // FIXME please. Change the format on this, or take the arguments more smartly, this is an actual disaster.
-        `cimgui-overloads="[%s %s %s]"`.format(imguiPath, cimguiPluginGenPath, "d-conv"),
         "--presets", "cimgui"
     ];
     if (op.dppExecutablePath)
@@ -293,7 +291,15 @@ void generateBindingsWorkflow()
         generatorArgs ~= "--dpp-path";
         generatorArgs ~= op.dppExecutablePath;
     }
-    auto result = _exec(generatorArgs, generatorRepoPath);
+
+    string argumentsString = escapeShellCommand(generatorArgs);
+    
+    // We need to append the plugin arguments as strings, since otherwise they get escaped
+    // and the default parser in the generator cannot deal with that.
+    argumentsString ~= ` --plugin-args cimgui-overloads="[%s, %s, %s]"`.format(imguiPath, cimguiPluginGenPath, "d-conv");
+    log(argumentsString);
+    
+    auto result = executeShell(argumentsString, null, Config.none, size_t.max, generatorRepoPath);
     if (result.status != 0)
     {
         _error("Failed to apply the generator: ");

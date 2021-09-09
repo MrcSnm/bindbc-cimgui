@@ -18,7 +18,7 @@
 	"license": "BSL-1.0",
 	"name": "bindbc-cimgui_sample",
 	"sourcePaths": [
-		"source", "../source"
+		"source"
 	],
 	"targetPath": "bin",
 	"workingDirectory": "bin",

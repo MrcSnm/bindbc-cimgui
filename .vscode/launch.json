@@ -23,6 +23,26 @@
                 "/c/": "C:/",
                 "c:\\": "C:\\"
             }
+        },
+        {
+            "name": "(Windows) Launch Build Script",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "rdmd",
+            "args": [
+                "${workspaceFolder}/dostuff.d", 
+                "--compileImgui", 
+                "--compileDpp", 
+                "--generateBindings"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "externalTerminal",
+            "sourceFileMap": {
+                "/c/": "C:/",
+                "c:\\": "C:\\"
+            }
         }
     ]
 }
