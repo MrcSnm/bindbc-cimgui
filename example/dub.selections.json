@@ -1,8 +1,11 @@
 {
 	"fileVersion": 1,
 	"versions": {
+		"bindbc-cimgui": {"path":"../"},
+		"bindbc-generate": "1.0.0",
 		"bindbc-loader": "1.0.1",
 		"bindbc-opengl": "1.0.0",
-		"bindbc-sdl": "1.0.1"
+		"bindbc-sdl": "1.0.1",
+		"regexes": {"path":"C:/Users/Hipreme/AppData/Local/dub/packages/bindbc-generate-1.0.0/bindbc-generate/regexes"}
 	}
 }

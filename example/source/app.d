@@ -45,7 +45,8 @@ void loadLibs()
 
     import bindbc.loader : SharedLib;
     void function (SharedLib lib) additionalLoadAll;
-    static if(!CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
+    version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL){}
+    else
     {
         additionalLoadAll = (SharedLib lib)
         {
@@ -86,7 +87,8 @@ int main()
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     bool quit = false;
-    ImGui_ImplSDL2_InitForOpenGL(gWindow, SDL_GL_GetCurrentContext());
+    auto oglContext = SDL_GL_GetCurrentContext();
+    ImGui_ImplSDL2_InitForOpenGL(gWindow, oglContext);
     ImGui_ImplOpenGL3_Init("");
     
     igStyleColorsDark(null);

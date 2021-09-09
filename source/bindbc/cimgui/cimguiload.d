@@ -60,7 +60,8 @@ private bool _load()
         import std.conv:to;
         foreach(err; errors)
         {
-            writeln(to!string(err.message));
+			if(err.message != null)
+            	writeln(to!string(err.message));
         }
     }
     return isOkay;

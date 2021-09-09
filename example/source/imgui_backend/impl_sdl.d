@@ -9,8 +9,6 @@ module imgui_backend.impl_sdl;
 import bindbc.sdl;
 
 /// Whether to use the implemetation defined in D, or link against compiled ImGUI backend. 
-enum CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL = true;
-
 version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
 {
     import bindbc.cimgui;
@@ -116,7 +114,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
     enum thumb_dead_zone = 8000;
 
 
-    extern(C) static const (char)* ImGui_ImplSDL2_GetClipboardText(void*)
+    extern(C++) static const (char)* ImGui_ImplSDL2_GetClipboardText(void*)
     {
         if (g_ClipboardTextData)
             SDL_free(g_ClipboardTextData);
@@ -125,7 +123,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
     }
 
 
-    extern(C) static void ImGui_ImplSDL2_SetClipboardText(void*, const char* text)
+    extern(C++) static void ImGui_ImplSDL2_SetClipboardText(void*, const char* text)
     {
         SDL_SetClipboardText(text);
     }
@@ -180,7 +178,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
                 }
                 return true;
             }
-            static if(CIMGUI_VIEWPORT_BRANCH)
+            version(CIMGUI_VIEWPORT_BRANCH)
             {
                 case SDL_WINDOWEVENT:
                     Uint8 window_event = event.window.event;
@@ -263,7 +261,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
         // Check and store if we are on Wayland
         g_MouseCanUseGlobalState = strncmp(SDL_GetCurrentVideoDriver(), "wayland", 7) != 0;
 
-        static if(CIMGUI_VIEWPORT_BRANCH)
+        version(CIMGUI_VIEWPORT_BRANCH)
         {
             ImGuiViewport* main_viewport = igGetMainViewport();
             main_viewport.PlatformHandle = cast(void*)window;
@@ -273,7 +271,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
         {
             SDL_SysWMinfo wmInfo;
             SDL_VERSION(&wmInfo.version_);
-            static if(CIMGUI_VIEWPORT_BRANCH)
+            version(CIMGUI_VIEWPORT_BRANCH)
             {
                 if(SDL_GetWindowWMInfo(window, &wmInfo))
                 {
@@ -287,7 +285,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
             }
         }
 
-        static if(CIMGUI_VIEWPORT_BRANCH)
+        version(CIMGUI_VIEWPORT_BRANCH)
         {
             ImGui_ImplSDL2_UpdateMonitors();
             // We need SDL_CaptureMouse(), SDL_GetGlobalMouseState() from SDL 2.0.4+ to support multiple viewports.
@@ -336,7 +334,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
 
     void ImGui_ImplSDL2_Shutdown()
     {
-        static if(CIMGUI_VIEWPORT_BRANCH)
+        version(CIMGUI_VIEWPORT_BRANCH)
             ImGui_ImplSDL2_ShutdownPlatformInterface();
         g_Window = null;
         // Destroy last known clipboard data
@@ -354,14 +352,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
     {
         ImGuiIO* io = igGetIO();
         // Set OS mouse position if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
-        static if(!CIMGUI_VIEWPORT_BRANCH)
-        {
-            if (io.WantSetMousePos)
-                SDL_WarpMouseInWindow(g_Window, cast(int)io.MousePos.x, cast(int)io.MousePos.y);
-            else
-                io.MousePos = ImVec2(-igGET_FLT_MAX(), -igGET_FLT_MAX());
-        }
-        else
+        version(CIMGUI_VIEWPORT_BRANCH)
         {
             io.MouseHoveredViewport = 0;
             if (io.WantSetMousePos)
@@ -377,6 +368,13 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
                     SDL_WarpMouseInWindow(g_Window, cast(int)io.MousePos.x, cast(int)io.MousePos.y);
             }
             else
+                io.MousePos = ImVec2(-igGET_FLT_MAX(), -igGET_FLT_MAX());   
+        }
+        else
+        {
+            if (io.WantSetMousePos)
+                SDL_WarpMouseInWindow(g_Window, cast(int)io.MousePos.x, cast(int)io.MousePos.y);
+            else
                 io.MousePos = ImVec2(-igGET_FLT_MAX(), -igGET_FLT_MAX());
         }
 
@@ -389,26 +387,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
 
         static if(SDL_HAS_CAPTURE_AND_GLOBAL_MOUSE)
         {
-            static if(!CIMGUI_VIEWPORT_BRANCH) //Mantaining compatibility with non docking branch
-            {
-                SDL_Window* focused_window = SDL_GetKeyboardFocus();
-                if (g_Window == focused_window)
-                {
-                    if (g_MouseCanUseGlobalState)
-                    {
-                        // SDL_GetMouseState() gives mouse position seemingly based on the last window entered/focused(?)
-                        // The creation of a new windows at runtime and SDL_CaptureMouse both seems to severely mess up with that, so we retrieve that position globally.
-                        // Won't use this workaround when on Wayland, as there is no global mouse position.
-                        int wx, wy;
-                        SDL_GetWindowPosition(focused_window, &wx, &wy);
-                        SDL_GetGlobalMouseState(&mx, &my);
-                        mx -= wx;
-                        my -= wy;
-                    }
-                    io.MousePos = ImVec2(cast(float)mx, cast(float)my);
-                }
-            }
-            else
+            version(CIMGUI_VIEWPORT_BRANCH) //Mantaining compatibility with non docking branch
             {
                 if (g_MouseCanUseGlobalState)
                 {
@@ -438,6 +417,26 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
                 {
                     if (SDL_GetWindowFlags(g_Window) & SDL_WINDOW_INPUT_FOCUS)
                         io.MousePos = ImVec2(cast(float)mx, cast(float)my);
+                }
+                
+            }
+            else
+            {
+                SDL_Window* focused_window = SDL_GetKeyboardFocus();
+                if (g_Window == focused_window)
+                {
+                    if (g_MouseCanUseGlobalState)
+                    {
+                        // SDL_GetMouseState() gives mouse position seemingly based on the last window entered/focused(?)
+                        // The creation of a new windows at runtime and SDL_CaptureMouse both seems to severely mess up with that, so we retrieve that position globally.
+                        // Won't use this workaround when on Wayland, as there is no global mouse position.
+                        int wx, wy;
+                        SDL_GetWindowPosition(focused_window, &wx, &wy);
+                        SDL_GetGlobalMouseState(&mx, &my);
+                        mx -= wx;
+                        my -= wy;
+                    }
+                    io.MousePos = ImVec2(cast(float)mx, cast(float)my);
                 }
             }
             // SDL_CaptureMouse() let the OS know e.g. that our imgui drag outside the SDL window boundaries shouldn't e.g. trigger the OS window resize cursor.
@@ -545,7 +544,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
     }
 
     //Starting viewport branch support
-    static if(CIMGUI_VIEWPORT_BRANCH)
+    version(CIMGUI_VIEWPORT_BRANCH)
     {
         static void ImGui_ImplSDL2_UpdateMonitors()
         {
@@ -589,7 +588,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
             // }
         }
 
-        extern(C) static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
+        extern(C++) static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
         {
             //ImGuiViewportDataSDL2* data = IM_NEW!ImGuiViewportDataSDL2;
 
@@ -647,7 +646,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
             viewport.PlatformUserData = data;
         }
 
-        extern(C) static void ImGui_ImplSDL2_DestroyWindow(ImGuiViewport* viewport)
+        extern(C++) static void ImGui_ImplSDL2_DestroyWindow(ImGuiViewport* viewport)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             if (ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData)
@@ -663,7 +662,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
             viewport.PlatformUserData = viewport.PlatformHandle = null;
         }
 
-        extern(C) static void ImGui_ImplSDL2_ShowWindow(ImGuiViewport* viewport)
+        extern(C++) static void ImGui_ImplSDL2_ShowWindow(ImGuiViewport* viewport)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -701,7 +700,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
             _out_vec.y = cast(float)y;
         }
 
-        extern(C) static void ImGui_ImplSDL2_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos)
+        extern(C++) static void ImGui_ImplSDL2_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -718,14 +717,14 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
             _out_vec.y = cast(float)h;
         }
 
-        extern(C) static void ImGui_ImplSDL2_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
+        extern(C++) static void ImGui_ImplSDL2_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             SDL_SetWindowSize(data.Window, cast(int)size.x, cast(int)size.y);
         }
 
-        extern(C) static void ImGui_ImplSDL2_SetWindowTitle(ImGuiViewport* viewport, const (char)* title)
+        extern(C++) static void ImGui_ImplSDL2_SetWindowTitle(ImGuiViewport* viewport, const (char)* title)
         {
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             SDL_SetWindowTitle(data.Window, title);
@@ -733,7 +732,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
 
         static if(SDL_HAS_WINDOW_ALPHA)
         {
-            extern(C) static void ImGui_ImplSDL2_SetWindowAlpha(ImGuiViewport* viewport, float alpha)
+            extern(C++) static void ImGui_ImplSDL2_SetWindowAlpha(ImGuiViewport* viewport, float alpha)
             {
                 //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
                 ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -741,27 +740,27 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
             }
         }
 
-        extern(C) static void ImGui_ImplSDL2_SetWindowFocus(ImGuiViewport* viewport)
+        extern(C++) static void ImGui_ImplSDL2_SetWindowFocus(ImGuiViewport* viewport)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             SDL_RaiseWindow(data.Window);
         }
 
-        extern(C) static bool ImGui_ImplSDL2_GetWindowFocus(ImGuiViewport* viewport)
+        extern(C++) static bool ImGui_ImplSDL2_GetWindowFocus(ImGuiViewport* viewport)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             return (SDL_GetWindowFlags(data.Window) & SDL_WINDOW_INPUT_FOCUS) != 0;
         }
 
-        extern(C) static bool ImGui_ImplSDL2_GetWindowMinimized(ImGuiViewport* viewport)
+        extern(C++) static bool ImGui_ImplSDL2_GetWindowMinimized(ImGuiViewport* viewport)
         {
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
             return (SDL_GetWindowFlags(data.Window) & SDL_WINDOW_MINIMIZED) != 0;
         }
 
-        extern(C) static void ImGui_ImplSDL2_RenderWindow(ImGuiViewport* viewport, void*)
+        extern(C++) static void ImGui_ImplSDL2_RenderWindow(ImGuiViewport* viewport, void*)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -769,7 +768,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
               SDL_GL_MakeCurrent(data.Window, data.GLContext);
         }
 
-        extern(C) static void ImGui_ImplSDL2_SwapBuffers(ImGuiViewport* viewport, void*)
+        extern(C++) static void ImGui_ImplSDL2_SwapBuffers(ImGuiViewport* viewport, void*)
         {
             //ImGuiViewport* viewport = &viewportp._ImGuiViewport;
             ImGuiViewportDataSDL2* data = cast(ImGuiViewportDataSDL2*)viewport.PlatformUserData;
@@ -792,7 +791,7 @@ version(CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL)
                 return ret ? 0 : 1; // ret ? VK_SUCCESS : VK_NOT_READY
             }
         }
-        extern(C) static void ImGui_ImplSDL2_InitPlatformInterface(SDL_Window* window, void* sdl_gl_context)
+        extern(C++) static void ImGui_ImplSDL2_InitPlatformInterface(SDL_Window* window, void* sdl_gl_context)
         {
             // Register platform interface (will be coupled with a renderer interface)
             
