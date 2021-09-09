@@ -23,5 +23,8 @@
 	],
 	"targetPath": "lib",
 	"targetType": "library",
-	"version": "1.0.1"
+	"version": "1.0.1",
+	"versions": [
+		"CIMGUI_VIEWPORT_BRANCH"
+	]
 }

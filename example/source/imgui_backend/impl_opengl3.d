@@ -723,7 +723,7 @@ static if(CIMGUI_USER_DEFINED_IMPLEMENTATION_GL)
     // If you are new to dear imgui or creating a new binding for dear imgui, it is recommended that you completely ignore this section first..
     //--------------------------------------------------------------------------------------------------------
 
-    extern(C) static void ImGui_ImplOpenGL3_RenderWindow(ImGuiViewport* viewport, void*)
+    extern(C++) static void ImGui_ImplOpenGL3_RenderWindow(ImGuiViewport* viewport, void*)
     {
         //viewport = cast(ImGuiViewport*)param;
         if (!(viewport.Flags & ImGuiViewportFlags_NoRendererClear))

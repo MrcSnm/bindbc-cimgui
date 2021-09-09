@@ -13,7 +13,7 @@
 		"../source"
 	],
 	"libs": [
-		"../lib/cimgui"
+		"../lib/bindbc-cimgui"
 	],
 	"license": "BSL-1.0",
 	"name": "bindbc-cimgui_sample",

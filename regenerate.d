@@ -1,4 +1,4 @@
-module dostuff;
+module regenerate;
 
 import std.string;
 import std.file;
@@ -57,7 +57,8 @@ int main(string[] args)
         return ret;
     }
     mixin(getoptMixin());
-    if (helpInformation.helpWanted || args.length == 0)
+
+    if (helpInformation.helpWanted || op == Options.init)
     {
         defaultGetoptPrinter("Help message", helpInformation.options);
         return 0;
