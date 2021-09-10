@@ -82,7 +82,8 @@ So in that case you will either have to link against the same static GLFW librar
 
 ## List of the currently supported versions of ImGui:
 
-### v1.79
+- v1.84.1
+- v1.79
 
 Screenshots:
 
