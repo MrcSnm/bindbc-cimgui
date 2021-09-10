@@ -1,8 +1,6 @@
 {
 	"fileVersion": 1,
 	"versions": {
-		"bindbc-generate": "1.0.0",
-		"bindbc-loader": "0.3.2",
-		"regexes": {"path":"C:/Users/Hipreme/AppData/Local/dub/packages/bindbc-generate-1.0.0/bindbc-generate/regexes"}
+		"bindbc-loader": "1.0.1"
 	}
 }

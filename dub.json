@@ -9,7 +9,6 @@
 	],
 	"copyright": "Copyright © 2020, Hipreme",
 	"dependencies": {
-		"bindbc-generate": "~>1.0.0",
 		"bindbc-loader": "~>1.0.1"
 	},
 	"description": "Minimal C Dear ImGUI+SDL test",

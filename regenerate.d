@@ -13,7 +13,7 @@ import std.stdio : writeln;
 struct Options
 {
     @("Path to temporary directory, `temp` by default.") 
-    string tempDirectory;
+    string tempDirectory = "temp";
 
     @("Path to d++ executable. Only needed when doing bindings. Found in path if not provided.") 
     string dppExecutablePath;
@@ -26,6 +26,13 @@ struct Options
 
     @("Whether to get cimgui from github and compile into a dll and lib.")
     bool compileImgui;
+
+    enum CimguiBranch
+    {
+        docking, master
+    }
+    @("Controls which branch of cimgui to build. (Can be `docking` or `master`.)")
+    CimguiBranch cimguiBranch = CimguiBranch.docking;
 
     @("Whether to regenerate bindbc-cimgui bindings using the generator.")
     bool generateBindings;
@@ -85,7 +92,7 @@ int main(string[] args)
         _error("Incompatible arguments: `compileImgui` and `cimguiHeaderPath`");
     }
 
-    op.tempDirectory = absolutePath(op.tempDirectory ? op.tempDirectory : "temp");
+    op.tempDirectory = absolutePath(op.tempDirectory);
     mkdirRecurse(op.tempDirectory);
 
     if (hasErrors)
@@ -128,7 +135,6 @@ string takeAfterLast(string str, string pattern)
 // Returns the path to the cloned repo
 string gitClone(string repoUrl, bool recursive = true, string branch = null)
 {
-    // `a/b/name` gives us `name`
     string repoName = repoUrl.takeAfterLast("/");
     string repoPath = buildPath(op.tempDirectory, repoName);
     if (exists(repoPath))
@@ -189,8 +195,17 @@ string dppCompilationWorkflow()
 string gitCloneImgui()
 {
     const repoUrl = "https://www.github.com/cimgui/cimgui";
-    const commitHash = null;//"a97c90ec4f32a5938dba3e1141827efad4efaa00";
-    const branch = "docking_inter";
+    string commitHash, branch;
+    if (op.cimguiBranch == Options.CimguiBranch.docking)
+    {
+        commitHash = "873c03c3673033bf8e8dd22901d4a3934b7407b2";
+        branch = "docking_inter";
+    }
+    else
+    {
+        commitHash = "17ffa736d353591b9545d1cedaa6373482f7f1a3";
+        branch = "master";
+    }
     const recursive = false;
 
     const clonedRepoPath = gitClone(repoUrl, recursive, branch);
@@ -221,7 +236,6 @@ string imguiCompilationWorkflow()
     if (!imguiClonedRepoPath)
         return null;
 
-    // cmake -Hcimgui -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo
     const imguiBuildDirectory = "imgui_build";
     const configuration = "RelWithDebInfo";
     auto result = _exec(
@@ -232,7 +246,6 @@ string imguiCompilationWorkflow()
         return null;
     }
 
-    // cmake --build build --config RelWithDebInfo
     result = _exec(["cmake", "--build", imguiBuildDirectory, "--config", configuration], op.tempDirectory);
     if (result.status != 0)
     {
@@ -241,7 +254,7 @@ string imguiCompilationWorkflow()
     }
 
     // The output should be in RelWithDebInfo
-    const outputDirectory = buildPath(op.tempDirectory, "build", configuration);
+    const outputDirectory = buildPath(op.tempDirectory, imguiBuildDirectory, configuration);
     return outputDirectory;
 }
 
@@ -313,11 +326,6 @@ void generateBindingsWorkflow()
 }
 
 
-// void copyTree(string fromPath, string toPath)
-// {
-//     foreach (f
-// }
-
 auto _exec(string[] args, string workingDirectory = null)
 {
     string cmd = escapeShellCommand(args);
@@ -329,7 +337,7 @@ bool existsCommand(string command)
 {
     version (Windows)
     {
-        return executeShell(escapeShellCommand(["where", command])).status == 0;
+        return execute(["where", command]).status == 0;
     }
     assert(0, "Linux and the alike are not implemented");
 }

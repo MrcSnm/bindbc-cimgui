@@ -11,9 +11,10 @@ You will have to copy them from the example folder.
 > VERY BIG SPOILER ALERT!
 > The generator for this is NOT fully automatic and will not work for newer version of imgui.
 > REGENERATE THE BINDINGS AT YOUR OWN RISK, you will likely have to do a lot of work to make it work.
+> There is a helper script `regenerate.d` for doing this, which you may want to use.
 
 I made this binding with [bindbc-generator](https://github.com/MrcSnm/bindbc-generator) with some additional things that cimgui needs, found at `source/bindbc/cimgui/additional.d`.
-The only other dub package which provides ImGui bindings is [DerelicImGui](https://github.com/extrawurst/DerelictImgui), but it is pretty old, so I made this repo that I'll be supporting for my game engine [HipremeEngine](https://github.com/MrcSnm/HipremeEngine).
+The only other dub package which provides ImGui bindings is [DerelictImGui](https://github.com/extrawurst/DerelictImgui), but it is pretty old, so I made this repo that I'll be supporting for my game engine [HipremeEngine](https://github.com/MrcSnm/HipremeEngine).
 
 The docking and master branch are both supported. 
 Docking can be enabled via `CIMGUI_VIEWPORT_BRANCH` version definition.
@@ -27,7 +28,7 @@ In order to do this, pass a callback argument to `loadcimgui` which receives a `
 
 The particular implementations in the example folder allow either custom implementation or dynamically linking against a precompiled one, controlled via the constant `CIMGUI_USER_DEFINED_IMPLEMENTATION_SDL`. It is set to true by default. Change the source file to override this.
 
-I only provide so many backends, so if you're using something else, you'll have to write it on your own. Use [the official ImGui implementations](cimgui/imgui/backends) as reference.
+I only provide so many backends, so if you're using something else, you'll have to write it on your own. Use [the official ImGui implementations](https://github.com/ocornut/imgui/tree/master/backends) as reference.
 
 ## How to build ImGui?
 
@@ -43,7 +44,8 @@ cmake --build build --config RelWithDebInfo
 
 [-H](https://cgold.readthedocs.io/en/latest/glossary/-H.html), [-B](https://cgold.readthedocs.io/en/latest/glossary/-B.html#b)
 
-Even better, @AntonC9018 made a helper script that helps with cloning the right hash of cimgui, building it, as well as downloading and building dpp, and running the bidings generator.
+Even better, @AntonC9018 made a helper script that helps with cloning the right hash of cimgui, building it, as well as downloading and building dpp, and running the bidings generator. 
+Run it by doing `rdmd regenerate.d`.
 
 If you need the ImGui backend implementations to be part of the library, include the source files in `cimgui/CMakeLists.txt`.
 

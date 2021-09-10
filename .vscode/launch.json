@@ -28,9 +28,9 @@
             "name": "(Windows) Launch Build Script",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "rdmd",
-            "args": [
-                "${workspaceFolder}/dostuff.d", 
+            "preLaunchTask": "build_helper_script",
+            "program": "regenerate.exe",
+            "args": [ 
                 "--compileImgui", 
                 "--compileDpp", 
                 "--generateBindings"
