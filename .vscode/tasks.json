@@ -5,6 +5,7 @@
             "label": "build_helper_script",
             "command": "dmd",
             "args": [
+                "-g",
                 "regenerate.d"
             ]
         }
